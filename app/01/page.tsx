@@ -68,12 +68,22 @@ export default function ZeroOneSetup() {
   };
 
   const startGame = () => {
-    if (players.length < 2) {
+    if (players.length < 1) {
       alert(t('zeroOne.errors.minPlayers'));
       return;
     }
 
-    // Show order selection dialog
+    // Skip order dialog for single player
+    if (players.length === 1) {
+      sessionStorage.setItem("zeroOnePlayers", JSON.stringify(players));
+      sessionStorage.setItem("zeroOneMode", gameMode.toString());
+      sessionStorage.setItem("zeroOneDoubleOut", doubleOut.toString());
+      sessionStorage.setItem("zeroOneMaxRounds", maxRounds.toString());
+      router.push("/01/game");
+      return;
+    }
+
+    // Show order selection dialog for 2+ players
     setShowOrderDialog(true);
   };
 
@@ -184,7 +194,7 @@ export default function ZeroOneSetup() {
           </div>
         )}
 
-        {players.length < 2 && (
+        {players.length < 1 && (
           <p className="text-sm text-theme-muted italic mb-6 text-center py-4 bg-theme-secondary rounded-lg">
             {t('zeroOne.players.minRequired')}
           </p>
@@ -285,9 +295,9 @@ export default function ZeroOneSetup() {
           <button
             data-testid="start-game-button"
             onClick={startGame}
-            disabled={players.length < 2}
+            disabled={players.length < 1}
             className={`flex-1 px-8 py-4 rounded-xl font-bold text-xl transition-all shadow-lg ${
-              players.length < 2
+              players.length < 1
                 ? "bg-theme-interactive text-theme-muted cursor-not-allowed"
                 : "bg-accent text-white hover:opacity-90 hover:scale-105"
             }`}

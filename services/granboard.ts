@@ -92,116 +92,168 @@ export class Granboard {
   private readonly bluetoothConnection: BluetoothRemoteGATTCharacteristic;
   private readonly writeCharacteristic?: BluetoothRemoteGATTCharacteristic;
   private readonly connectionTime: number;
+  private readonly device?: BluetoothDevice;
+  private _disconnected = false;
 
   public segmentHitCallback?: (segment: Segment) => void;
+  public onDisconnect?: () => void;
+
+  /** Whether the underlying BLE connection has been lost */
+  public get disconnected(): boolean {
+    return this._disconnected;
+  }
 
   /**
-   * Try to reconnect to a previously authorized Granboard automatically
-   * Returns null if no device was previously authorized
+   * Try to reconnect to a previously authorized Granboard automatically.
+   * Uses the Web Bluetooth getDevices() API + watchAdvertisements() if available,
+   * with a timeout so it doesn't hang forever.
    */
-  public static async TryAutoConnect(): Promise<Granboard | null> {
+  public static async TryAutoConnect(timeoutMs = 8000): Promise<Granboard | null> {
     try {
       // Check if browser supports getDevices (not all browsers do)
-      if (!navigator.bluetooth.getDevices) {
-        console.log("⚠️ Browser doesn't support automatic reconnection");
+      if (!navigator.bluetooth?.getDevices) {
+        console.log("[Granboard] Browser doesn't support getDevices() - auto-reconnect unavailable");
         return null;
       }
 
       const devices = await navigator.bluetooth.getDevices();
-      const granboard = devices.find((device) =>
-        device.name?.toLowerCase().includes("gran")
+      const device = devices.find((d) =>
+        d.name?.toLowerCase().includes("gran")
       );
 
-      if (!granboard || !granboard.gatt) {
-        console.log("ℹ️ No previously authorized Granboard found");
+      if (!device || !device.gatt) {
+        console.log("[Granboard] No previously authorized Granboard found");
         return null;
       }
 
-      console.log("🔄 Reconnecting to", granboard.name);
+      console.log("[Granboard] Found authorized device:", device.name);
 
-      if (!granboard.gatt.connected) {
-        await granboard.gatt.connect();
+      // If already connected (e.g. from a previous page), reuse it
+      if (device.gatt.connected) {
+        console.log("[Granboard] Device GATT already connected, reusing");
+        return await Granboard.setupFromGatt(device);
       }
 
-      const service = await granboard.gatt.getPrimaryService(GRANBOARD_UUID);
-
-      let boardCharacteristic = (await service.getCharacteristics()).find(
-        (characteristic) => characteristic.properties.notify
-      );
-
-      if (!boardCharacteristic) {
-        throw new Error("Could not find matching bluetooth characteristic on dartboard");
+      // Try direct connect first (works if device is advertising)
+      try {
+        const connectPromise = device.gatt.connect();
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Connect timeout")), timeoutMs)
+        );
+        await Promise.race([connectPromise, timeoutPromise]);
+        console.log("[Granboard] Direct GATT connect succeeded");
+        return await Granboard.setupFromGatt(device);
+      } catch (directError) {
+        console.log("[Granboard] Direct connect failed:", directError);
       }
 
-      let writeCharacteristic = (await service.getCharacteristics()).find(
-        (characteristic) => characteristic.properties.write || characteristic.properties.writeWithoutResponse
-      );
+      // If direct connect failed, try watchAdvertisements (Chrome-specific)
+      if ('watchAdvertisements' in device) {
+        console.log("[Granboard] Trying watchAdvertisements...");
+        try {
+          const board = await new Promise<Granboard | null>((resolve) => {
+            const timer = setTimeout(() => {
+              console.log("[Granboard] watchAdvertisements timed out");
+              resolve(null);
+            }, timeoutMs);
 
-      const board = new Granboard(boardCharacteristic, writeCharacteristic);
-      await boardCharacteristic.startNotifications();
+            device.addEventListener("advertisementreceived", async () => {
+              clearTimeout(timer);
+              try {
+                await device.gatt!.connect();
+                console.log("[Granboard] Connected via watchAdvertisements");
+                resolve(await Granboard.setupFromGatt(device));
+              } catch (err) {
+                console.error("[Granboard] Connect after advertisement failed:", err);
+                resolve(null);
+              }
+            }, { once: true });
 
-      console.log("✅ Auto-reconnected to Granboard");
-      return board;
+            (device as any).watchAdvertisements({ signal: AbortSignal.timeout(timeoutMs) }).catch(() => {
+              clearTimeout(timer);
+              resolve(null);
+            });
+          });
+          if (board) return board;
+        } catch {
+          // watchAdvertisements not fully supported, fall through
+        }
+      }
+
+      console.log("[Granboard] Auto-reconnect exhausted all strategies");
+      return null;
     } catch (error) {
-      console.error("❌ Auto-reconnect failed:", error);
+      console.error("[Granboard] Auto-reconnect failed:", error);
       return null;
     }
+  }
+
+  /**
+   * Set up Granboard from an already-connected GATT device
+   */
+  private static async setupFromGatt(device: BluetoothDevice): Promise<Granboard> {
+    const service = await device.gatt!.getPrimaryService(GRANBOARD_UUID);
+    const characteristics = await service.getCharacteristics();
+
+    const boardCharacteristic = characteristics.find(
+      (c) => c.properties.notify
+    );
+    if (!boardCharacteristic) {
+      throw new Error("Could not find notify characteristic on dartboard");
+    }
+
+    const writeCharacteristic = characteristics.find(
+      (c) => c.properties.write || c.properties.writeWithoutResponse
+    );
+
+    const board = new Granboard(boardCharacteristic, writeCharacteristic, device);
+    await boardCharacteristic.startNotifications();
+    console.log("[Granboard] Notifications started");
+    return board;
   }
 
   /**
    * Connect to a Granboard with user interaction (shows browser pairing dialog)
    */
   public static async ConnectToBoard(): Promise<Granboard> {
-    const boardBluetooth = await navigator.bluetooth.requestDevice({
+    const device = await navigator.bluetooth.requestDevice({
       filters: [{ services: [GRANBOARD_UUID] }],
     });
 
-    if (!boardBluetooth || !boardBluetooth.gatt) {
+    if (!device || !device.gatt) {
       throw new Error("Could not find matching service on bluetooth dartboard");
     }
 
-    if (!boardBluetooth.gatt.connected) {
-      await boardBluetooth.gatt.connect();
+    if (!device.gatt.connected) {
+      await device.gatt.connect();
     }
 
-    const service = await boardBluetooth.gatt.getPrimaryService(GRANBOARD_UUID);
-
-    // Find the characteristic that supports the notify property. That is the one that executes when
-    // a dartboard segment is hit
-    let boardCharacteristic = (await service.getCharacteristics()).find(
-      (characteristic) => characteristic.properties.notify
-    );
-
-    if (!boardCharacteristic) {
-      throw new Error(
-        "Could not find matching bluetooth charactaristic on dartboard"
-      );
-    }
-
-    // Find the characteristic that supports write property for LED control
-    let writeCharacteristic = (await service.getCharacteristics()).find(
-      (characteristic) => characteristic.properties.write || characteristic.properties.writeWithoutResponse
-    );
-
-    const board = new Granboard(boardCharacteristic, writeCharacteristic);
-
-    await boardCharacteristic.startNotifications();
-
-    return board;
+    return await Granboard.setupFromGatt(device);
   }
 
   private constructor(
     bluetoothConnection: BluetoothRemoteGATTCharacteristic,
-    writeCharacteristic?: BluetoothRemoteGATTCharacteristic
+    writeCharacteristic?: BluetoothRemoteGATTCharacteristic,
+    device?: BluetoothDevice
   ) {
     this.bluetoothConnection = bluetoothConnection;
     this.writeCharacteristic = writeCharacteristic;
+    this.device = device;
     this.connectionTime = Date.now();
 
     this.bluetoothConnection.addEventListener(
       "characteristicvaluechanged",
       this.onSegmentHit.bind(this)
     );
+
+    // Listen for disconnection
+    if (device) {
+      device.addEventListener("gattserverdisconnected", () => {
+        console.log("[Granboard] BLE device disconnected");
+        this._disconnected = true;
+        this.onDisconnect?.();
+      });
+    }
   }
 
   private onSegmentHit() {
@@ -209,24 +261,24 @@ export class Granboard {
       return; // There is no new value
     }
 
-    // Ignore events in the first 2 seconds after connection to avoid false triggers
+    // Ignore events in the first 500ms after connection to avoid false triggers
     const timeSinceConnection = Date.now() - this.connectionTime;
-    if (timeSinceConnection < 2000) {
-      console.log(`⏳ Ignoring event (${timeSinceConnection}ms after connection) - warming up`);
+    if (timeSinceConnection < 500) {
+      console.log(`[Granboard] Ignoring event (${timeSinceConnection}ms after connection) - warming up`);
       return;
     }
 
-    const segmentUID = new Uint8Array(
-      this.bluetoothConnection.value.buffer
-    ).join("-");
-    const segmentID = (SEGMENT_MAPPING as any)[segmentUID]; // There is probably a type safe way without resulting to "any"
+    const rawBytes = new Uint8Array(this.bluetoothConnection.value.buffer);
+    const segmentUID = rawBytes.join("-");
+    const segmentID = (SEGMENT_MAPPING as any)[segmentUID];
+
+    console.log(`[Granboard] Hit: bytes=[${rawBytes}] key="${segmentUID}" -> ${segmentID !== undefined ? segmentID : "UNKNOWN"}`);
 
     if (segmentID !== undefined) {
-      console.log(segmentID);
       this.segmentHitCallback?.(CreateSegment(segmentID));
     } else {
       // Treat unknown segments as MISS (out of bounds)
-      console.log(`Unknown segment UID: ${segmentUID} - treating as MISS`);
+      console.log(`[Granboard] Unknown segment UID: ${segmentUID} - treating as MISS`);
       this.segmentHitCallback?.(CreateSegment(SegmentID.MISS));
     }
   }

@@ -70,12 +70,21 @@ export default function CricketSetup() {
   };
 
   const startGame = () => {
-    if (players.length < 2) {
+    if (players.length < 1) {
       alert(t('cricket.errors.minPlayers'));
       return;
     }
 
-    // Show order selection dialog
+    // Skip order dialog for single player
+    if (players.length === 1) {
+      sessionStorage.setItem("cricketPlayers", JSON.stringify(players));
+      sessionStorage.setItem("cricketGameMode", gameMode);
+      sessionStorage.setItem("cricketMaxRounds", maxRounds.toString());
+      router.push("/cricket/game");
+      return;
+    }
+
+    // Show order selection dialog for 2+ players
     setShowOrderDialog(true);
   };
 
@@ -185,7 +194,7 @@ export default function CricketSetup() {
           </div>
         )}
 
-        {players.length < 2 && (
+        {players.length < 1 && (
           <p className="text-sm text-theme-muted italic mb-6 text-center py-4 bg-theme-secondary rounded-lg">
             {t('cricket.players.minRequired')}
           </p>
@@ -251,9 +260,9 @@ export default function CricketSetup() {
           <button
             data-testid="start-game-button"
             onClick={startGame}
-            disabled={players.length < 2}
+            disabled={players.length < 1}
             className={`flex-1 px-8 py-4 rounded-xl font-bold text-xl transition-all shadow-lg ${
-              players.length < 2
+              players.length < 1
                 ? "bg-theme-interactive text-theme-muted cursor-not-allowed"
                 : "bg-green-700 text-white hover:bg-green-600 hover:scale-105"
             }`}

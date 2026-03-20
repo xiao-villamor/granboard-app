@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.git
+.github
+*.md
+e2e
+docs
+.cache
+server
+certbot

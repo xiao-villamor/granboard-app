@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
@@ -19,8 +20,8 @@ interface HitData {
 
 interface AnimationInfo {
   id: AnimationType;
-  name: string;
-  description: string;
+  nameKey: string;
+  descKey: string;
   emoji: string;
   data?: HitData[];
 }
@@ -28,20 +29,20 @@ interface AnimationInfo {
 const animationsList: AnimationInfo[] = [
   {
     id: "three-miss",
-    name: "3 Miss - Chèvre",
-    description: "Animation quand le joueur fait 3 miss (la chèvre)",
+    nameKey: "threeMiss",
+    descKey: "threeMissDesc",
     emoji: "🐐",
   },
   {
     id: "three-triple",
-    name: "3 Triples - Licorne",
-    description: "Animation quand le joueur fait 3 triples (magique!)",
+    nameKey: "threeTriple",
+    descKey: "threeTripleDesc",
     emoji: "🦄",
   },
   {
     id: "hit-sequence",
-    name: "Séquence 3 Simples",
-    description: "Animation pour 3 simples: \\ \\ \\",
+    nameKey: "threeSimples",
+    descKey: "threeSimplesDesc",
     emoji: "🎯",
     data: [
       { Type: 1, Section: 20 },
@@ -51,8 +52,8 @@ const animationsList: AnimationInfo[] = [
   },
   {
     id: "hit-sequence",
-    name: "Séquence Simple-Double-Triple",
-    description: "Animation pour simple, double, triple: \\ X ⊗",
+    nameKey: "singleDoubleTriple",
+    descKey: "singleDoubleTripleDesc",
     emoji: "🎯",
     data: [
       { Type: 1, Section: 20 },
@@ -62,8 +63,8 @@ const animationsList: AnimationInfo[] = [
   },
   {
     id: "hit-sequence",
-    name: "Séquence 3 Doubles",
-    description: "Animation pour 3 doubles: X X X",
+    nameKey: "threeDoubles",
+    descKey: "threeDoublesDesc",
     emoji: "🎯",
     data: [
       { Type: 2, Section: 20 },
@@ -73,14 +74,16 @@ const animationsList: AnimationInfo[] = [
   },
   {
     id: "victory",
-    name: "Victoire",
-    description: "Animation de victoire",
+    nameKey: "victoryAnim",
+    descKey: "victoryAnimDesc",
     emoji: "🏆",
   },
 ];
 
 export default function AnimationsDebugPage() {
   const router = useRouter();
+  const t = useTranslations("debug.animations");
+  const tCommon = useTranslations("common");
   const [playing, setPlaying] = useState<number | null>(null);
   const { playAnimation: triggerAnimation, AnimationOverlay } = useAnimations();
 
@@ -103,13 +106,13 @@ export default function AnimationsDebugPage() {
             onClick={() => router.push("/")}
             className="mb-4 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all flex items-center gap-2"
           >
-            <FontAwesomeIcon icon={faArrowLeft} /> Retour
+            <FontAwesomeIcon icon={faArrowLeft} /> {tCommon("back")}
           </button>
           <h1 className="text-5xl font-bold text-white mb-2">
-            🎬 Debug Animations
+            {t("title")}
           </h1>
           <p className="text-purple-200">
-            Testez toutes les animations de l&apos;application
+            {t("subtitle")}
           </p>
         </div>
 
@@ -128,16 +131,16 @@ export default function AnimationsDebugPage() {
                   <span className="text-6xl">{animation.emoji}</span>
                   <div>
                     <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
-                      {animation.name}
+                      {t(animation.nameKey)}
                     </h3>
                     <p className="text-purple-200 text-sm mt-1">
-                      {animation.description}
+                      {t(animation.descKey)}
                     </p>
                   </div>
                 </div>
                 {playing === index && (
                   <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500 text-white text-sm rounded-full animate-pulse">
-                    ▶ Playing
+                    Playing
                   </span>
                 )}
               </div>
@@ -147,7 +150,7 @@ export default function AnimationsDebugPage() {
 
         {/* Info */}
         <div className="mt-8 text-center text-purple-300 text-sm">
-          <p>💡 Cliquez sur une animation pour la visualiser en plein écran</p>
+          <p>{t("tip")}</p>
         </div>
       </div>
     </main>

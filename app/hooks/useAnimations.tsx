@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export type AnimationType =
   | "three-miss"
@@ -87,6 +88,7 @@ export function useAnimations() {
     null
   );
   const [animationKey, setAnimationKey] = useState<number>(0);
+  const t = useTranslations("animations");
 
   const playAnimation = useCallback(
     (type: AnimationType, data?: HitData[], duration: number = 3000) => {
@@ -120,7 +122,7 @@ export function useAnimations() {
             <div className="text-center">
               <div className="text-9xl mb-4 animate-shake">🐐</div>
               <div className="text-4xl font-bold text-white animate-pulse">
-                BÊÊÊÊÊ!
+                {t("threeMiss")}
               </div>
             </div>
           )}
@@ -128,10 +130,10 @@ export function useAnimations() {
             <div className="text-center">
               <div className="text-9xl mb-4 animate-rainbow">🦄</div>
               <div className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent animate-pulse">
-                LICORNE!
+                {t("threeTriple")}
               </div>
               <div className="text-2xl text-purple-300 mt-2">
-                3 Triples! Magique!
+                {t("threeTripleSubtitle")}
               </div>
             </div>
           )}
@@ -139,10 +141,10 @@ export function useAnimations() {
             <div className="text-center">
               <div className="text-9xl mb-4 animate-trophy">🏆</div>
               <div className="text-4xl font-bold text-yellow-400 animate-pulse">
-                VICTOIRE!
+                {t("victory")}
               </div>
               <div className="text-2xl text-purple-300 mt-2">
-                Félicitations!
+                {t("victorySubtitle")}
               </div>
             </div>
           )}
@@ -234,7 +236,7 @@ export function useAnimations() {
         `}</style>
       </div>
     );
-  }, [currentAnimation, animationKey]);
+  }, [currentAnimation, animationKey, t]);
 
   return {
     playAnimation,

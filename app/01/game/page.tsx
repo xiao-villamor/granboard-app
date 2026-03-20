@@ -23,6 +23,10 @@ import { usePlayerTurnHistory } from "../../cricket/game/hooks/usePlayerTurnHist
 import { useSounds } from "../../cricket/game/hooks/useSounds";
 import { useSettings } from "@/app/contexts/SettingsContext";
 import { useAnimations } from "@/app/hooks/useAnimations";
+import { useGameRoom } from "@/app/hooks/useGameRoom";
+
+// Serialization
+import { serializeZeroOneState, serializeSegments, serializeSegment } from "@/services/serialization";
 
 // Components
 import { GameHeader } from "../../cricket/game/components/GameHeader";
@@ -33,6 +37,7 @@ import { HitAnimation } from "../../cricket/game/components/HitAnimation";
 import { TurnSummary } from "../../cricket/game/components/TurnSummary";
 import { PlayerTurnHistory } from "../../cricket/game/components/PlayerTurnHistory";
 import { LegendDialog } from "./components/LegendDialog";
+import { ShareGameDialog } from "@/app/components/ShareGameDialog";
 
 export default function ZeroOneGame() {
   const router = useRouter();
@@ -181,6 +186,29 @@ export default function ZeroOneGame() {
   const { connectionState, connectToBoard } =
     useGranboardConnection(handleSegmentHitWithSound);
 
+  // ─── Live spectator broadcasting ──────────────────────────────
+  const {
+    roomState,
+    roomCode,
+    spectatorCount,
+    isConnected: wsConnected,
+    createRoom,
+    closeRoom,
+    broadcastState,
+    broadcastHit,
+  } = useGameRoom({ gameType: "zeroone" });
+
+  // Broadcast full game state whenever it changes
+  useEffect(() => {
+    if (!roomCode || !gameState) return;
+
+    const serializedState = serializeZeroOneState(gameState);
+    const serializedHits = serializeSegments(currentTurnHits);
+    const serializedLastHit = lastHit ? serializeSegment(lastHit) : null;
+
+    broadcastState(serializedState, serializedHits, serializedLastHit);
+  }, [gameState, currentTurnHits, lastHit, roomCode, broadcastState]);
+
   // Trigger animations after 3rd dart (with delay after hit animation)
   useEffect(() => {
     if (gameState && gameState.dartsThrown === 3 && currentTurnHits.length === 3) {
@@ -265,7 +293,7 @@ export default function ZeroOneGame() {
   if (!gameState) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-theme-primary">
-        <div className="text-2xl text-theme-primary">Chargement...</div>
+        <div className="text-2xl text-theme-primary">{t('common.loading')}</div>
       </div>
     );
   }
@@ -283,6 +311,16 @@ export default function ZeroOneGame() {
         onConnect={connectToBoard}
         onShowLegend={() => setShowLegend(true)}
         onShowSettings={handleShowSettings}
+        shareGameSlot={
+          <ShareGameDialog
+            roomCode={roomCode}
+            spectatorCount={spectatorCount}
+            isConnected={wsConnected}
+            onCreateRoom={createRoom}
+            onCloseRoom={closeRoom}
+            roomState={roomState}
+          />
+        }
       />
 
       {gameState.gameFinished && gameState.winner && (

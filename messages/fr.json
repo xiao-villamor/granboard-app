@@ -5,6 +5,7 @@
     "remove": "Retirer",
     "start": "Commencer la partie",
     "bluetooth": "Bluetooth",
+    "loading": "Chargement...",
     "connectionState": {
       "waiting": "en attente",
       "connecting": "connexion",
@@ -38,8 +39,16 @@
     "title": "GRANBOARD",
     "modes": {
       "01": "01",
-      "cricket": "CRICKET"
+      "cricket": "CRICKET",
+      "training": "ENTRAÎNEMENT"
     }
+  },
+  "animations": {
+    "threeMiss": "BÊÊÊÊÊ!",
+    "threeTriple": "LICORNE!",
+    "threeTripleSubtitle": "3 Triples! Magique!",
+    "victory": "VICTOIRE!",
+    "victorySubtitle": "Félicitations!"
   },
   "cricket": {
     "title": "CRICKET",
@@ -49,7 +58,7 @@
       "placeholder": "Nom du joueur",
       "count": "{count} joueur",
       "count_plural": "{count} joueurs",
-      "minRequired": "Ajoutez au moins 2 joueurs pour commencer la partie"
+      "minRequired": "Ajoutez au moins 1 joueur pour commencer la partie"
     },
     "gameMode": {
       "title": "Mode de jeu",
@@ -93,7 +102,7 @@
       }
     },
     "errors": {
-      "minPlayers": "Il faut au moins 2 joueurs pour commencer!",
+      "minPlayers": "Il faut au moins 1 joueur pour commencer!",
       "connectionFailed": "Impossible de se connecter à la Granboard. Assurez-vous qu'elle est allumée et réessayez."
     },
     "game": {
@@ -148,7 +157,13 @@
       "standardDesc": "Fermez vos numéros (3 marques) puis scorez des points en continuant à viser ces numéros. Le joueur avec le plus de points gagne !",
       "cutThroatTitle": "Mode Cut Throat",
       "cutThroatDesc": "Les points (affichés en rouge) sont MAUVAIS ! Quand vous touchez un numéro fermé par vous mais pas par vos adversaires, vous leur donnez des points. Fermez vos cibles rapidement pour éviter de recevoir des points. Le joueur avec le MOINS de points gagne !",
-      "close": "Fermer"
+      "close": "Fermer",
+      "legendTitle": "Légende:",
+      "oneMark_short": "/ = 1 marque",
+      "twoMarks_short": "X = 2 marques",
+      "closed_short": "⊗ = Fermé",
+      "mprAvg": "MPR = Moy. marques/tour",
+      "cutThroatWarning": "Cut Throat: Points en rouge = MAUVAIS!"
     },
     "playerOrder": {
       "dialog": {
@@ -188,7 +203,7 @@
       "placeholder": "Nom du joueur",
       "count": "{count} joueur",
       "count_plural": "{count} joueurs",
-      "minRequired": "Ajoutez au moins 2 joueurs pour commencer la partie"
+      "minRequired": "Ajoutez au moins 1 joueur pour commencer la partie"
     },
     "gameMode": {
       "title": "Score de départ",
@@ -224,7 +239,7 @@
       }
     },
     "errors": {
-      "minPlayers": "Il faut au moins 2 joueurs pour commencer!",
+      "minPlayers": "Il faut au moins 1 joueur pour commencer!",
       "connectionFailed": "Impossible de se connecter à la Granboard. Assurez-vous qu'elle est allumée et réessayez."
     },
     "game": {
@@ -251,6 +266,133 @@
       "bustDesc": "Si vous dépassez 0 ou arrivez à 1, c'est un bust. Votre tour est perdu et votre score reste inchangé.",
       "doubleOutTitle": "Double Out",
       "doubleOutDesc": "Quand activé, vous DEVEZ finir sur un double pour gagner. Finir sur autre chose qu'un double est un bust."
+    }
+  },
+  "debug": {
+    "sounds": {
+      "title": "Debug Sons",
+      "subtitle": "Testez tous les sons de l'application",
+      "audioControls": "Contrôles Audio",
+      "soundEnabled": "Son activé",
+      "volume": "Volume",
+      "sequentialTest": "Test Séquentiel",
+      "playAll": "Jouer tous les sons en séquence",
+      "tip": "Astuce : Activez le son et ajustez le volume ci-dessus",
+      "dartMiss": "Dart Miss",
+      "dartMissDesc": "Son lorsqu'une fléchette rate la cible",
+      "bull": "Bull",
+      "bullDesc": "Son pour le bull simple",
+      "doubleBull": "Double Bull",
+      "doubleBullDesc": "Son pour le double bull / bullseye",
+      "whistleSingle": "Sifflet Simple",
+      "whistleSingleDesc": "1 sifflet pour un simple qui rapporte des points",
+      "whistleDouble": "Sifflet Double",
+      "whistleDoubleDesc": "2 sifflets pour un double qui rapporte des points",
+      "whistleTriple": "Sifflet Triple",
+      "whistleTripleDesc": "3 sifflets pour un triple qui rapporte des points",
+      "victory": "Victory",
+      "victoryDesc": "Son de victoire",
+      "gameOver": "Game Over",
+      "gameOverDesc": "Son de fin de partie"
+    },
+    "animations": {
+      "title": "Debug Animations",
+      "subtitle": "Testez toutes les animations de l'application",
+      "threeMiss": "3 Miss - Chèvre",
+      "threeMissDesc": "Animation quand le joueur fait 3 miss (la chèvre)",
+      "threeTriple": "3 Triples - Licorne",
+      "threeTripleDesc": "Animation quand le joueur fait 3 triples (magique!)",
+      "threeSimples": "Séquence 3 Simples",
+      "threeSimplesDesc": "Animation pour 3 simples: \\ \\ \\",
+      "singleDoubleTriple": "Séquence Simple-Double-Triple",
+      "singleDoubleTripleDesc": "Animation pour simple, double, triple: \\ X ⊗",
+      "threeDoubles": "Séquence 3 Doubles",
+      "threeDoublesDesc": "Animation pour 3 doubles: X X X",
+      "victoryAnim": "Victoire",
+      "victoryAnimDesc": "Animation de victoire",
+      "tip": "Cliquez sur une animation pour la visualiser en plein écran"
+    }
+  },
+  "spectator": {
+    "shareGame": "Partager la partie",
+    "goLive": "Passer en direct",
+    "share": "Partager",
+    "createRoomDescription": "Partagez votre partie avec vos amis et laissez-les regarder en temps réel depuis n'importe quel appareil.",
+    "creating": "Création...",
+    "serverUnavailable": "Serveur indisponible. Vérifiez votre connexion.",
+    "scanQr": "Scannez ce QR code pour regarder la partie",
+    "gameCode": "Code de partie",
+    "watchLink": "Lien de visionnage",
+    "shareNative": "Partager",
+    "spectators": "{count} en train de regarder",
+    "stopSharing": "Arrêter le partage",
+    "connecting": "Connexion...",
+    "joiningRoom": "Rejoint la salle {code}...",
+    "error": "Erreur de connexion",
+    "roomNotFound": "Salle introuvable ou plus disponible.",
+    "backHome": "Retour à l'accueil",
+    "roomClosed": "Partie terminée",
+    "hostDisconnected": "L'hôte a terminé la session de jeu.",
+    "waitingForGame": "En attente de la partie",
+    "hostSetting": "L'hôte configure la partie. Veuillez patienter...",
+    "unsupportedGame": "Ce type de jeu n'est pas encore pris en charge pour le visionnage.",
+    "watchGame": "Regarder une partie",
+    "enterCodeDescription": "Entrez un code de partie pour regarder une partie en direct en tant que spectateur.",
+    "codePlaceholder": "Entrez le code de partie",
+    "join": "Rejoindre"
+  },
+  "training": {
+    "title": "ENTRAÎNEMENT",
+    "subtitle": "Améliorez vos compétences aux fléchettes",
+    "reset": "Réinitialiser",
+    "playAgain": "Rejouer",
+    "freeThrow": {
+      "title": "Lancer libre",
+      "description": "Lancez des fléchettes, suivez votre précision et vos statistiques de groupement",
+      "darts": "Fléchettes",
+      "totalPoints": "Points",
+      "hitRate": "Taux de réussite",
+      "singles": "Simples",
+      "doubles": "Doubles",
+      "triples": "Triples",
+      "misses": "Ratés",
+      "recentHits": "Derniers lancers",
+      "waitingForDarts": "Connectez votre cible et commencez à lancer !",
+      "mostHit": "Le plus touché"
+    },
+    "targetPractice": {
+      "title": "Entraînement ciblé",
+      "description": "Visez le numéro indiqué par l'application, gagnez des points selon votre précision",
+      "numberOfTargets": "Nombre de cibles",
+      "aimFor": "Visez le",
+      "dartsRemaining": "{count} fléchettes restantes",
+      "progress": "Cible {current} sur {total}",
+      "sessionComplete": "Session terminée !",
+      "accuracy": "Précision",
+      "perfectRate": "Taux de perfection",
+      "correctHits": "Tirs corrects",
+      "targets": "Cibles",
+      "currentDarts": "Fléchettes en cours",
+      "history": "Historique"
+    },
+    "checkout": {
+      "title": "Entraînement checkout",
+      "description": "Entraînez-vous à finir depuis des scores spécifiques avec des chemins de checkout suggérés",
+      "selectScore": "Sélectionnez le score de checkout",
+      "high": "Haut (150+)",
+      "mid": "Moyen (100-149)",
+      "low": "Bas (<100)",
+      "remaining": "Restant",
+      "suggestion": "Suggestion",
+      "dartsThrown": "{count}/3 fléchettes lancées",
+      "currentAttempt": "Tentative en cours",
+      "successRate": "Taux de réussite",
+      "checkouts": "Checkouts",
+      "attempts": "Tentatives",
+      "avgDarts": "Moy. fléchettes",
+      "recentAttempts": "Tentatives récentes",
+      "success": "Checkout !",
+      "bust": "Bust"
     }
   }
 }

@@ -1,13 +1,11 @@
 import { getRequestConfig } from 'next-intl/server';
 import { defaultLocale } from './config';
 
+// This is only used at build time for static export (SSG).
+// Runtime locale switching is handled client-side by LocaleProvider.
 export default getRequestConfig(async () => {
-  // For static export, we use the default locale
-  // Locale switching will be handled client-side
-  const locale = defaultLocale;
-
   return {
-    locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    locale: defaultLocale,
+    messages: (await import(`../messages/${defaultLocale}.json`)).default,
   };
 });

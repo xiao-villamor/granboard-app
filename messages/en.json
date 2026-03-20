@@ -5,6 +5,7 @@
     "remove": "Remove",
     "start": "Start Game",
     "bluetooth": "Bluetooth",
+    "loading": "Loading...",
     "connectionState": {
       "waiting": "waiting",
       "connecting": "connecting",
@@ -38,8 +39,16 @@
     "title": "GRANBOARD",
     "modes": {
       "01": "01",
-      "cricket": "CRICKET"
+      "cricket": "CRICKET",
+      "training": "TRAINING"
     }
+  },
+  "animations": {
+    "threeMiss": "BAAAA!",
+    "threeTriple": "UNICORN!",
+    "threeTripleSubtitle": "3 Triples! Magic!",
+    "victory": "VICTORY!",
+    "victorySubtitle": "Congratulations!"
   },
   "cricket": {
     "title": "CRICKET",
@@ -49,7 +58,7 @@
       "placeholder": "Player name",
       "count": "{count} player",
       "count_plural": "{count} players",
-      "minRequired": "Add at least 2 players to start the game"
+      "minRequired": "Add at least 1 player to start the game"
     },
     "gameMode": {
       "title": "Game Mode",
@@ -93,7 +102,7 @@
       }
     },
     "errors": {
-      "minPlayers": "You need at least 2 players to start!",
+      "minPlayers": "You need at least 1 player to start!",
       "connectionFailed": "Failed to connect to Granboard. Make sure it's powered on and try again."
     },
     "game": {
@@ -148,7 +157,13 @@
       "standardDesc": "Close your numbers (3 marks) then score points by continuing to hit those numbers. The player with the most points wins!",
       "cutThroatTitle": "Cut Throat Mode",
       "cutThroatDesc": "Points (shown in red) are BAD! When you hit a number you've closed but your opponents haven't, you give them points. Close your targets quickly to avoid receiving points. The player with the LEAST points wins!",
-      "close": "Close"
+      "close": "Close",
+      "legendTitle": "Legend:",
+      "oneMark_short": "/ = 1 mark",
+      "twoMarks_short": "X = 2 marks",
+      "closed_short": "Closed",
+      "mprAvg": "MPR = Avg. marks/round",
+      "cutThroatWarning": "Cut Throat: Points in red = BAD!"
     },
     "playerOrder": {
       "dialog": {
@@ -188,7 +203,7 @@
       "placeholder": "Player name",
       "count": "{count} player",
       "count_plural": "{count} players",
-      "minRequired": "Add at least 2 players to start the game"
+      "minRequired": "Add at least 1 player to start the game"
     },
     "gameMode": {
       "title": "Starting Score",
@@ -224,7 +239,7 @@
       }
     },
     "errors": {
-      "minPlayers": "You need at least 2 players to start!",
+      "minPlayers": "You need at least 1 player to start!",
       "connectionFailed": "Failed to connect to Granboard. Make sure it's powered on and try again."
     },
     "game": {
@@ -251,6 +266,133 @@
       "bustDesc": "If you go below 0 or land on 1, it's a bust. Your turn is lost and your score remains unchanged.",
       "doubleOutTitle": "Double Out",
       "doubleOutDesc": "When enabled, you MUST finish on a double to win. Finishing on anything other than a double is a bust."
+    }
+  },
+  "debug": {
+    "sounds": {
+      "title": "Debug Sounds",
+      "subtitle": "Test all application sounds",
+      "audioControls": "Audio Controls",
+      "soundEnabled": "Sound enabled",
+      "volume": "Volume",
+      "sequentialTest": "Sequential Test",
+      "playAll": "Play all sounds in sequence",
+      "tip": "Tip: Enable sound and adjust volume above",
+      "dartMiss": "Dart Miss",
+      "dartMissDesc": "Sound when a dart misses the target",
+      "bull": "Bull",
+      "bullDesc": "Sound for single bull",
+      "doubleBull": "Double Bull",
+      "doubleBullDesc": "Sound for double bull / bullseye",
+      "whistleSingle": "Single Whistle",
+      "whistleSingleDesc": "1 whistle for a scoring single",
+      "whistleDouble": "Double Whistle",
+      "whistleDoubleDesc": "2 whistles for a scoring double",
+      "whistleTriple": "Triple Whistle",
+      "whistleTripleDesc": "3 whistles for a scoring triple",
+      "victory": "Victory",
+      "victoryDesc": "Victory sound",
+      "gameOver": "Game Over",
+      "gameOverDesc": "Game over sound"
+    },
+    "animations": {
+      "title": "Debug Animations",
+      "subtitle": "Test all application animations",
+      "threeMiss": "3 Miss - Goat",
+      "threeMissDesc": "Animation when player misses 3 times (the goat)",
+      "threeTriple": "3 Triples - Unicorn",
+      "threeTripleDesc": "Animation when player hits 3 triples (magic!)",
+      "threeSimples": "3 Singles Sequence",
+      "threeSimplesDesc": "Animation for 3 singles: \\ \\ \\",
+      "singleDoubleTriple": "Single-Double-Triple Sequence",
+      "singleDoubleTripleDesc": "Animation for single, double, triple: \\ X ⊗",
+      "threeDoubles": "3 Doubles Sequence",
+      "threeDoublesDesc": "Animation for 3 doubles: X X X",
+      "victoryAnim": "Victory",
+      "victoryAnimDesc": "Victory animation",
+      "tip": "Click an animation to view it fullscreen"
+    }
+  },
+  "spectator": {
+    "shareGame": "Share Game",
+    "goLive": "Go Live",
+    "share": "Share",
+    "createRoomDescription": "Share your game with friends and let them watch in real-time from any device.",
+    "creating": "Creating...",
+    "serverUnavailable": "Server unavailable. Check your connection.",
+    "scanQr": "Scan this QR code to watch the game",
+    "gameCode": "Game Code",
+    "watchLink": "Watch Link",
+    "shareNative": "Share",
+    "spectators": "{count} watching",
+    "stopSharing": "Stop Sharing",
+    "connecting": "Connecting...",
+    "joiningRoom": "Joining room {code}...",
+    "error": "Connection Error",
+    "roomNotFound": "Room not found or no longer available.",
+    "backHome": "Back to Home",
+    "roomClosed": "Game Ended",
+    "hostDisconnected": "The host has ended the game session.",
+    "waitingForGame": "Waiting for Game",
+    "hostSetting": "The host is setting up the game. Please wait...",
+    "unsupportedGame": "This game type is not yet supported for spectating.",
+    "watchGame": "Watch a Game",
+    "enterCodeDescription": "Enter a game code to watch a live game as a spectator.",
+    "codePlaceholder": "Enter game code",
+    "join": "Join"
+  },
+  "training": {
+    "title": "TRAINING",
+    "subtitle": "Improve your darts skills",
+    "reset": "Reset",
+    "playAgain": "Play Again",
+    "freeThrow": {
+      "title": "Free Throw",
+      "description": "Just throw darts, track your accuracy and grouping stats",
+      "darts": "Darts",
+      "totalPoints": "Points",
+      "hitRate": "Hit Rate",
+      "singles": "Singles",
+      "doubles": "Doubles",
+      "triples": "Triples",
+      "misses": "Misses",
+      "recentHits": "Recent Hits",
+      "waitingForDarts": "Connect your board and start throwing!",
+      "mostHit": "Most hit"
+    },
+    "targetPractice": {
+      "title": "Target Practice",
+      "description": "Hit the number the app tells you, score points for accuracy",
+      "numberOfTargets": "Number of targets",
+      "aimFor": "Aim for",
+      "dartsRemaining": "{count} darts remaining",
+      "progress": "Target {current} of {total}",
+      "sessionComplete": "Session Complete!",
+      "accuracy": "Accuracy",
+      "perfectRate": "Perfect Rate",
+      "correctHits": "Correct Hits",
+      "targets": "Targets",
+      "currentDarts": "Current darts",
+      "history": "History"
+    },
+    "checkout": {
+      "title": "Checkout Practice",
+      "description": "Practice finishing from specific scores with suggested checkout paths",
+      "selectScore": "Select checkout score",
+      "high": "High (150+)",
+      "mid": "Medium (100-149)",
+      "low": "Low (<100)",
+      "remaining": "Remaining",
+      "suggestion": "Suggestion",
+      "dartsThrown": "{count}/3 darts thrown",
+      "currentAttempt": "Current attempt",
+      "successRate": "Success Rate",
+      "checkouts": "Checkouts",
+      "attempts": "Attempts",
+      "avgDarts": "Avg Darts",
+      "recentAttempts": "Recent Attempts",
+      "success": "Checkout!",
+      "bust": "Bust"
     }
   }
 }

@@ -6,6 +6,7 @@ import {
   getPlayerScore,
   calculateMPR,
 } from "@/services/cricket";
+import { useTranslations } from "next-intl";
 
 interface ScoreBoardProps {
   players: PlayerState[];
@@ -20,6 +21,7 @@ export function ScoreBoard({
   gameMode,
   gameFinished,
 }: ScoreBoardProps) {
+  const t = useTranslations("cricket.game");
   // Check if all players have closed a specific number
   const isNumberClosedByAll = (num: CricketNumber) => {
     return players.every((p) => getPlayerScore(p, num).marks >= 3);
@@ -170,7 +172,7 @@ export function ScoreBoard({
                 </td>
               ))}
               <td className="p-2 text-center font-bold text-theme-primary text-sm border-x-2 border-theme-card" data-testid="points-label">
-                Points
+                {t("points")}
               </td>
               {rightPlayers.map((playerState) => (
                 <td
@@ -196,7 +198,7 @@ export function ScoreBoard({
                 </td>
               ))}
               <td className="p-2 text-center font-bold text-theme-primary text-sm border-x-2 border-theme-card" data-testid="mpr-label">
-                MPR
+                {t("mpr")}
               </td>
               {rightPlayers.map((playerState) => (
                 <td

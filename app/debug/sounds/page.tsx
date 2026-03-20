@@ -3,6 +3,7 @@
 import { useSounds } from "@/app/cricket/game/hooks/useSounds";
 import { useSettings } from "@/app/contexts/SettingsContext";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faVolumeHigh,
@@ -24,64 +25,66 @@ type SoundType =
 
 interface SoundInfo {
   id: SoundType;
-  name: string;
-  description: string;
-  category: "Gameplay" | "Achievements" | "Events";
+  nameKey: string;
+  descKey: string;
+  category: string;
 }
 
 const soundsList: SoundInfo[] = [
   {
     id: "dart-miss",
-    name: "Dart Miss",
-    description: "Son lorsqu'une fléchette rate la cible",
+    nameKey: "dartMiss",
+    descKey: "dartMissDesc",
     category: "Gameplay",
   },
   {
     id: "bull",
-    name: "Bull",
-    description: "Son pour le bull simple",
+    nameKey: "bull",
+    descKey: "bullDesc",
     category: "Achievements",
   },
   {
     id: "double-bull",
-    name: "Double Bull",
-    description: "Son pour le double bull / bullseye",
+    nameKey: "doubleBull",
+    descKey: "doubleBullDesc",
     category: "Achievements",
   },
   {
     id: "whistle-single",
-    name: "Sifflet Simple",
-    description: "1 sifflet pour un simple qui rapporte des points",
+    nameKey: "whistleSingle",
+    descKey: "whistleSingleDesc",
     category: "Achievements",
   },
   {
     id: "whistle-double",
-    name: "Sifflet Double",
-    description: "2 sifflets pour un double qui rapporte des points",
+    nameKey: "whistleDouble",
+    descKey: "whistleDoubleDesc",
     category: "Achievements",
   },
   {
     id: "whistle-triple",
-    name: "Sifflet Triple",
-    description: "3 sifflets pour un triple qui rapporte des points",
+    nameKey: "whistleTriple",
+    descKey: "whistleTripleDesc",
     category: "Achievements",
   },
   {
     id: "victory",
-    name: "Victory",
-    description: "Son de victoire",
+    nameKey: "victory",
+    descKey: "victoryDesc",
     category: "Achievements",
   },
   {
     id: "game-over",
-    name: "Game Over",
-    description: "Son de fin de partie",
+    nameKey: "gameOver",
+    descKey: "gameOverDesc",
     category: "Events",
   },
 ];
 
 export default function SoundsDebugPage() {
   const router = useRouter();
+  const t = useTranslations("debug.sounds");
+  const tCommon = useTranslations("common");
   const { playSound } = useSounds();
   const { volume, setVolume, soundEnabled, toggleSound } = useSettings();
   const [playing, setPlaying] = useState<SoundType | null>(null);
@@ -115,24 +118,24 @@ export default function SoundsDebugPage() {
             onClick={() => router.push("/")}
             className="mb-4 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all flex items-center gap-2"
           >
-            <FontAwesomeIcon icon={faArrowLeft} /> Retour
+            <FontAwesomeIcon icon={faArrowLeft} /> {tCommon("back")}
           </button>
-          <h1 className="text-5xl font-bold text-white mb-2">🎵 Debug Sons</h1>
+          <h1 className="text-5xl font-bold text-white mb-2">{t("title")}</h1>
           <p className="text-purple-200">
-            Testez tous les sons de l&apos;application
+            {t("subtitle")}
           </p>
         </div>
 
         {/* Volume Controls */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-white/20">
           <h2 className="text-2xl font-bold text-white mb-4">
-            Contrôles Audio
+            {t("audioControls")}
           </h2>
 
           <div className="space-y-4">
             {/* Sound Toggle */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium">Son activé</span>
+              <span className="text-white font-medium">{t("soundEnabled")}</span>
               <button
                 onClick={toggleSound}
                 className={`relative w-16 h-8 rounded-full transition-colors ${
@@ -152,7 +155,7 @@ export default function SoundsDebugPage() {
               <div className="flex items-center justify-between">
                 <span className="text-white font-medium flex items-center gap-2">
                   <FontAwesomeIcon icon={getVolumeIcon()} />
-                  Volume
+                  {t("volume")}
                 </span>
                 <span className="text-purple-200">
                   {Math.round(volume * 100)}%
@@ -197,15 +200,15 @@ export default function SoundsDebugPage() {
                 >
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
-                      {sound.name}
+                      {t(sound.nameKey)}
                     </h3>
                     {playing === sound.id && (
                       <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500 text-white text-sm rounded-full animate-pulse">
-                        🔊 Playing
+                        Playing
                       </span>
                     )}
                   </div>
-                  <p className="text-purple-200 text-sm">{sound.description}</p>
+                  <p className="text-purple-200 text-sm">{t(sound.descKey)}</p>
                   <div className="mt-3 text-xs text-purple-300 font-mono">
                     {sound.id}
                   </div>
@@ -218,7 +221,7 @@ export default function SoundsDebugPage() {
         {/* Play All Button */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <h2 className="text-2xl font-bold text-white mb-4">
-            Test Séquentiel
+            {t("sequentialTest")}
           </h2>
           <button
             onClick={() => {
@@ -229,13 +232,13 @@ export default function SoundsDebugPage() {
             disabled={!soundEnabled}
             className="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
-            🎼 Jouer tous les sons en séquence
+            {t("playAll")}
           </button>
         </div>
 
         {/* Info */}
         <div className="mt-8 text-center text-purple-300 text-sm">
-          <p>💡 Astuce : Activez le son et ajustez le volume ci-dessus</p>
+          <p>{t("tip")}</p>
         </div>
       </div>
     </main>

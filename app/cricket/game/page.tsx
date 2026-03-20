@@ -22,6 +22,10 @@ import { usePlayerTurnHistory } from "./hooks/usePlayerTurnHistory";
 import { useSounds } from "./hooks/useSounds";
 import { useSettings } from "@/app/contexts/SettingsContext";
 import { useAnimations } from "@/app/hooks/useAnimations";
+import { useGameRoom } from "@/app/hooks/useGameRoom";
+
+// Serialization
+import { serializeCricketState, serializeSegments, serializeSegment } from "@/services/serialization";
 
 // Components
 import { GameHeader } from "./components/GameHeader";
@@ -32,6 +36,7 @@ import { HitAnimation } from "./components/HitAnimation";
 import { TurnSummary } from "./components/TurnSummary";
 import { PlayerTurnHistory } from "./components/PlayerTurnHistory";
 import { LegendDialog } from "./components/LegendDialog";
+import { ShareGameDialog } from "@/app/components/ShareGameDialog";
 
 export default function CricketGame() {
   const router = useRouter();
@@ -193,6 +198,29 @@ export default function CricketGame() {
   const { connectionState, connectToBoard } =
     useGranboardConnection(handleSegmentHitWithSound);
 
+  // ─── Live spectator broadcasting ──────────────────────────────
+  const {
+    roomState,
+    roomCode,
+    spectatorCount,
+    isConnected: wsConnected,
+    createRoom,
+    closeRoom,
+    broadcastState,
+    broadcastHit,
+  } = useGameRoom({ gameType: "cricket" });
+
+  // Broadcast full game state whenever it changes
+  useEffect(() => {
+    if (!roomCode || !gameState) return;
+
+    const serializedState = serializeCricketState(gameState);
+    const serializedHits = serializeSegments(currentTurnHits);
+    const serializedLastHit = lastHit ? serializeSegment(lastHit) : null;
+
+    broadcastState(serializedState, serializedHits, serializedLastHit);
+  }, [gameState, currentTurnHits, lastHit, roomCode, broadcastState]);
+
   // Trigger animations after 3rd dart (with delay after hit animation)
   useEffect(() => {
     if (gameState && gameState.dartsThrown === 3 && currentTurnHits.length === 3) {
@@ -314,7 +342,7 @@ export default function CricketGame() {
   if (!gameState) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-theme-primary">
-        <div className="text-2xl text-theme-primary">Chargement...</div>
+        <div className="text-2xl text-theme-primary">{t('common.loading')}</div>
       </div>
     );
   }
@@ -332,6 +360,16 @@ export default function CricketGame() {
         onConnect={connectToBoard}
         onShowLegend={() => setShowLegend(true)}
         onShowSettings={handleShowSettings}
+        shareGameSlot={
+          <ShareGameDialog
+            roomCode={roomCode}
+            spectatorCount={spectatorCount}
+            isConnected={wsConnected}
+            onCreateRoom={createRoom}
+            onCloseRoom={closeRoom}
+            roomState={roomState}
+          />
+        }
       />
 
       {gameState.gameFinished && gameState.winner && (

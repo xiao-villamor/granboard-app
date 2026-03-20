@@ -1,53 +1,65 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Granboard } from "@/services/granboard";
 import { Segment } from "@/services/boardinfo";
 
-type ConnectionState = "déconnecté" | "connexion" | "connecté" | "erreur";
+export type ConnectionState = "disconnected" | "connecting" | "connected" | "error";
 
 export function useGranboardConnection(
   onSegmentHit?: (segment: Segment) => void
 ) {
   const [granboard, setGranboard] = useState<Granboard | null>(null);
   const [connectionState, setConnectionState] =
-    useState<ConnectionState>("déconnecté");
+    useState<ConnectionState>("disconnected");
+
+  // Use a ref for the callback so the Granboard instance always calls the latest version
+  // without needing to re-wire on every render
+  const onSegmentHitRef = useRef(onSegmentHit);
+  useEffect(() => {
+    onSegmentHitRef.current = onSegmentHit;
+  }, [onSegmentHit]);
+
+  // Stable callback that delegates to the ref
+  const stableCallback = useCallback((segment: Segment) => {
+    onSegmentHitRef.current?.(segment);
+  }, []);
+
+  // Wire up the Granboard instance when it's set
+  const setupBoard = useCallback((board: Granboard) => {
+    /* eslint-disable react-hooks/immutability */
+    board.segmentHitCallback = stableCallback;
+    board.onDisconnect = () => {
+      console.log("[useGranboardConnection] Board disconnected");
+      setConnectionState("disconnected");
+      setGranboard(null);
+    };
+    /* eslint-enable react-hooks/immutability */
+    setGranboard(board);
+    setConnectionState("connected");
+  }, [stableCallback]);
 
   // Try to auto-connect on mount
   useEffect(() => {
     const tryAutoConnect = async () => {
-      setConnectionState("connexion");
+      setConnectionState("connecting");
       const board = await Granboard.TryAutoConnect();
       if (board) {
-        setGranboard(board);
-        setConnectionState("connecté");
+        setupBoard(board);
       } else {
-        setConnectionState("déconnecté");
+        setConnectionState("disconnected");
       }
     };
 
     tryAutoConnect();
-  }, []); // Empty deps - only run on mount
-
-  // Update granboard callback when onSegmentHit changes
-  useEffect(() => {
-    if (granboard && onSegmentHit) {
-      /* eslint-disable react-hooks/immutability */
-      granboard.segmentHitCallback = onSegmentHit;
-      /* eslint-enable react-hooks/immutability */
-    }
-  }, [granboard, onSegmentHit]);
+  }, [setupBoard]); // setupBoard is stable (useCallback with stable deps)
 
   const connectToBoard = async () => {
-    setConnectionState("connexion");
+    setConnectionState("connecting");
     try {
       const board = await Granboard.ConnectToBoard();
-      if (onSegmentHit) {
-        board.segmentHitCallback = onSegmentHit;
-      }
-      setGranboard(board);
-      setConnectionState("connecté");
+      setupBoard(board);
     } catch (error) {
       console.error(error);
-      setConnectionState("erreur");
+      setConnectionState("error");
     }
   };
 
@@ -67,7 +79,7 @@ export function useGranboardConnection(
     granboard,
     connectionState,
     connectToBoard,
-    isConnected: connectionState === "connecté",
+    isConnected: connectionState === "connected",
     setLEDs,
     clearLEDs,
   };

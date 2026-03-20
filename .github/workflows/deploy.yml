@@ -1,0 +1,42 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file from secret
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: echo "$ENV_FILE" > "$GITHUB_WORKSPACE/.env"
+
+      - name: Deploy
+        run: |
+          set -euxo pipefail
+
+          echo "Docker version:"
+          docker --version
+          docker compose version
+
+          echo "Building and starting containers..."
+          docker compose up -d --build --remove-orphans 2>&1 | tail -50
+
+          echo "Running containers:"
+          docker compose ps
+
+          echo "=== Container logs (last 30 lines) ==="
+          docker compose logs --tail=30
+
+      - name: Remove unused Docker images
+        run: docker image prune -af --filter "until=24h"

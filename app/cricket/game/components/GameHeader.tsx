@@ -3,8 +3,7 @@ import { CricketGameMode } from "@/services/cricket";
 import { ZeroOneMode } from "@/services/zeroone";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook, faGear, faCheck } from "@fortawesome/free-solid-svg-icons";
-
-type ConnectionState = "déconnecté" | "connexion" | "connecté" | "erreur";
+import { ConnectionState } from "../hooks/useGranboardConnection";
 
 interface GameHeaderProps {
   gameMode: CricketGameMode | ZeroOneMode;
@@ -12,6 +11,8 @@ interface GameHeaderProps {
   onConnect: () => void;
   onShowLegend?: () => void;
   onShowSettings?: () => void;
+  /** Optional slot for the ShareGameDialog component */
+  shareGameSlot?: React.ReactNode;
 }
 
 export function GameHeader({
@@ -20,6 +21,7 @@ export function GameHeader({
   onConnect,
   onShowLegend,
   onShowSettings,
+  shareGameSlot,
 }: GameHeaderProps) {
   const t = useTranslations();
 
@@ -53,7 +55,7 @@ export function GameHeader({
           )}
         </h1>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 items-center">
         {onShowLegend && (
           <button
             data-testid="legend-button"
@@ -74,7 +76,8 @@ export function GameHeader({
             <FontAwesomeIcon icon={faGear} /> {t('cricket.game.settings')}
           </button>
         )}
-        {connectionState === "connecté" ? (
+        {shareGameSlot}
+        {connectionState === "connected" ? (
           <div data-testid="connection-status" className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium text-sm shadow-lg flex items-center gap-2">
             <FontAwesomeIcon icon={faCheck} /> {t('cricket.game.connected')}
           </div>
@@ -82,12 +85,12 @@ export function GameHeader({
           <button
             data-testid="connect-button"
             onClick={onConnect}
-            disabled={connectionState === "connexion"}
+            disabled={connectionState === "connecting"}
             className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 text-sm font-medium disabled:bg-theme-interactive transition-all shadow-lg"
           >
-            {connectionState === "connexion"
+            {connectionState === "connecting"
               ? t('cricket.game.connecting')
-              : connectionState === "erreur"
+              : connectionState === "error"
               ? t('cricket.game.errorRetry')
               : t('cricket.game.connectGranboard')}
           </button>

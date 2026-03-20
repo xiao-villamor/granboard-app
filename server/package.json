@@ -1,0 +1,22 @@
+{
+  "name": "granboard-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "nanoid": "^5.1.5",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "@types/node": "^24.10.0",
+    "@types/cors": "^2.8.18",
+    "typescript": "^5"
+  }
+}
