@@ -1,6 +1,6 @@
 # Granboard App
 
-A modern, feature-rich web application for Granboard electronic dartboards, built with Next.js and Web Bluetooth API.
+A modern, feature-rich web application for Granboard electronic dartboards, built with Next.js and Web Bluetooth API. Includes real-time spectator support so friends can watch your games live from any device.
 
 [![CI/CD](https://github.com/bastiennoel93/granboard-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bastiennoel93/granboard-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -42,8 +42,8 @@ A modern, feature-rich web application for Granboard electronic dartboards, buil
 
 ### Available Game Modes
 
-- **01 Games** 
-  - Classic countdown games (301, 501, etc.)
+- **01 Games**
+  - Classic countdown games (301, 501, 701)
   - Player order selection (random, throw for order, manual)
   - Real-time scoreboard with marks tracking
   - Undo functionality
@@ -58,6 +58,22 @@ A modern, feature-rich web application for Granboard electronic dartboards, buil
   - Undo functionality
   - Game history tracking
 
+### Live Spectator Mode
+
+Share your game with friends and let them watch in real-time from any device:
+
+- **Go Live** - One click to start broadcasting your game
+- **QR Code Sharing** - Scan to instantly join as a spectator on mobile
+- **Game Code** - Short alphanumeric code for manual entry
+- **Real-time Updates** - Spectators see every dart hit as it happens via WebSocket
+- **Read-only View** - Spectators get a clean scoreboard without host controls
+- **Spectator Count** - See how many people are watching your game
+- **Works on any device** - Spectators only need a browser and internet (no Bluetooth required)
+
+**Architecture:**
+```
+Dartboard (BLE) <-> Host Browser <-WebSocket-> Server <-WebSocket-> Spectator Browsers
+```
 
 ### Core Features
 
@@ -65,7 +81,7 @@ A modern, feature-rich web application for Granboard electronic dartboards, buil
 - **Real-time Scoring** - Instant dart detection and scoring
 - **Sound Effects & Animations** - Immersive audio feedback and visual effects for special achievements
 - **Theme Support** - Light and dark mode with smooth transitions
-- **Internationalization** - Full support for English and French
+- **Internationalization** - Full support for English, French, and Spanish
 - **Responsive Design** - Works seamlessly on desktop and mobile devices
 - **Modern UI** - Clean, intuitive interface built with Tailwind CSS v4
 - **Type Safety** - Full TypeScript implementation for reliability
@@ -81,6 +97,8 @@ A modern, feature-rich web application for Granboard electronic dartboards, buil
 
 ## Installation
 
+### Local Development
+
 1. Clone the repository:
 
 ```bash
@@ -94,13 +112,61 @@ cd granboard-app
 pnpm install
 ```
 
-3. Run the development server:
+3. Install WebSocket server dependencies:
 
 ```bash
-pnpm dev
+cd server && npm install && cd ..
 ```
 
-4. Open [http://localhost:8080](http://localhost:8080) in your browser
+4. Start both the dev server and WebSocket server:
+
+```bash
+# Terminal 1 - Next.js
+pnpm dev
+
+# Terminal 2 - WebSocket server
+cd server && npm run dev
+```
+
+5. Open [http://localhost:8080](http://localhost:8080) in your browser
+
+### Self-Hosted Deployment (Docker)
+
+The app is designed to run on a self-hosted server behind a Cloudflare Tunnel.
+
+1. Create a `.env` file:
+
+```bash
+NEXT_PUBLIC_WS_URL=https://darts.yourdomain.com
+```
+
+2. Build and start:
+
+```bash
+docker compose up -d --build
+```
+
+This starts two containers:
+- **web** (port 3000) - Next.js frontend
+- **ws** (port 3001) - WebSocket server
+
+3. Configure your Cloudflare Tunnel with two routes:
+
+| Hostname | Service |
+|---|---|
+| `darts.yourdomain.com/socket.io/*` | `http://localhost:3001` |
+| `darts.yourdomain.com/*` | `http://localhost:3000` |
+
+Make sure WebSockets are enabled in your Cloudflare dashboard (Network > WebSockets).
+
+### CI/CD
+
+Pushing to `main` triggers automatic deployment via GitHub Actions on a self-hosted runner. The workflow:
+
+1. Checks out the code
+2. Creates `.env` from the `ENV_FILE` repository secret
+3. Runs `docker compose up -d --build`
+4. Cleans up old Docker images
 
 ## Usage
 
@@ -150,12 +216,28 @@ pnpm dev
 - Special animations (Three in a Bed, Hat Trick)
 - Sound effects for hits and achievements
 
+### Sharing a Game (Live Spectating)
+
+1. During any Cricket or 01 game, click the **"Go Live"** button in the game header
+2. A room is created and you get a **game code** and **QR code**
+3. Share the code or QR with friends
+4. They open the link or enter the code on the home page under **"Watch a Game"**
+5. Spectators see the live scoreboard update in real-time
+6. Click **"Stop Sharing"** when done
+
+### Watching a Game (Spectator)
+
+1. On the home page, scroll down to **"Watch a Game"**
+2. Enter the game code shared by the host
+3. Click **"Join"**
+4. Watch the game in real-time
+
 ### Settings & Customization
 
 - **Theme** - Switch between light and dark mode
 - **Volume** - Adjust sound effects volume
 - **Sound** - Enable/disable sound effects
-- **Language** - Switch between English and French
+- **Language** - Switch between English, French, and Spanish
 
 ## Development
 
@@ -165,11 +247,14 @@ pnpm dev
 granboard-app/
 ├── app/                           # Next.js app directory
 │   ├── components/               # Shared UI components
-│   │   └── Card.tsx             # Reusable game card component
+│   │   ├── Card.tsx             # Reusable game card component
+│   │   └── ShareGameDialog.tsx  # QR code & game sharing dialog
 │   ├── contexts/                # React contexts
 │   │   └── SettingsContext.tsx  # Global settings (theme, sound, volume)
 │   ├── hooks/                   # Shared custom hooks
-│   │   └── useAnimations.tsx    # Animation system hook
+│   │   ├── useAnimations.tsx    # Animation system hook
+│   │   ├── useGameRoom.ts      # Host-side room broadcasting hook
+│   │   └── useSpectator.ts     # Spectator-side receiving hook
 │   ├── cricket/                 # Cricket game module
 │   │   ├── components/         # Cricket setup components
 │   │   └── game/               # Cricket game implementation
@@ -180,13 +265,26 @@ granboard-app/
 │   │   └── game/               # 01 game implementation
 │   │       ├── components/     # Game UI components
 │   │       └── hooks/          # Game-specific hooks
-│   ├── [locale]/               # Internationalization routing
-│   └── page.tsx                # Home page
+│   ├── watch/[code]/           # Spectator watch page (dynamic route)
+│   │   ├── page.tsx            # Spectator page with connection states
+│   │   ├── SpectatorCricketBoard.tsx  # Read-only Cricket view
+│   │   └── SpectatorZeroOneBoard.tsx  # Read-only 01 view
+│   └── page.tsx                # Home page (game modes + watch game input)
+├── server/                      # WebSocket server (Node.js + socket.io)
+│   ├── src/
+│   │   ├── index.ts            # Server entry point & event handlers
+│   │   ├── rooms.ts            # Room management & lifecycle
+│   │   └── types.ts            # Shared WebSocket event types
+│   ├── Dockerfile              # Server container
+│   ├── package.json            # Server dependencies (npm)
+│   └── tsconfig.json           # Server TypeScript config
 ├── services/                    # Business logic & game engines
 │   ├── granboard.ts            # Bluetooth connection service
 │   ├── boardinfo.ts            # Segment definitions & enums
 │   ├── cricket.ts              # Cricket game engine
-│   └── zeroone.ts              # 01 games engine
+│   ├── zeroone.ts              # 01 games engine
+│   ├── serialization.ts        # Game state serialization for WebSocket
+│   └── socketTypes.ts          # Client-side WebSocket type definitions
 ├── constants/                   # Centralized constants
 │   ├── segments.ts             # Segment types and utilities
 │   ├── animations.ts           # Animation timing constants
@@ -194,22 +292,27 @@ granboard-app/
 │   └── storage.ts              # Session storage keys
 ├── messages/                    # Internationalization files
 │   ├── en.json                 # English translations
-│   └── fr.json                 # French translations
+│   ├── fr.json                 # French translations
+│   └── es.json                 # Spanish translations
 ├── __tests__/                   # Unit tests
 ├── e2e/                        # E2E tests with Playwright
-│   ├── take-screenshots.spec.ts  # Screenshot generator
-│   └── *.spec.ts               # E2E test suites
 ├── public/                     # Static assets
 │   └── assets/                # Images and sounds
-└── docs/                       # Documentation
-    └── screenshots/            # README screenshots
+├── docs/                       # Documentation
+│   └── screenshots/            # README screenshots
+├── Dockerfile                  # Next.js app container
+├── docker-compose.yml          # Full deployment (web + ws)
+└── .github/workflows/
+    ├── ci.yml                  # Tests, lint, build on PRs
+    └── deploy.yml              # Auto-deploy to self-hosted runner on push to main
 ```
 
 ### Key Directories Explained
 
 - **`app/`** - Next.js 16 App Router structure with internationalization
+- **`server/`** - WebSocket server for real-time spectator broadcasting (socket.io)
 - **`services/`** - Pure TypeScript game logic, independent of UI
-- **`constants/`** - Centralized constants for maintainability (added during refactoring)
+- **`constants/`** - Centralized constants for maintainability
 - **`contexts/`** - Global state management (settings, theme, sound)
 - **`hooks/`** - Reusable React hooks for common functionality
 - **`e2e/`** - End-to-end tests including automated screenshot generation
@@ -218,10 +321,16 @@ granboard-app/
 
 ```bash
 # Development
-pnpm dev              # Start dev server
+pnpm dev              # Start Next.js dev server (port 8080)
 pnpm build            # Build for production
 pnpm start            # Start production server
 pnpm lint             # Run ESLint
+
+# WebSocket Server
+cd server
+npm run dev           # Start server in watch mode (port 3001)
+npm run build         # Compile TypeScript
+npm start             # Start production server
 
 # Testing
 pnpm test             # Run unit tests
@@ -238,18 +347,20 @@ pnpm test:e2e:debug   # Debug E2E tests
 - **Language:** [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first CSS framework
 - **Bluetooth:** [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) - Direct device communication
+- **Real-time:** [Socket.IO](https://socket.io/) - WebSocket-based spectator system
 - **Testing:** [Jest](https://jestjs.io/) + [Playwright](https://playwright.dev/) - Unit and E2E testing
+- **Deployment:** [Docker](https://www.docker.com/) + [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) - Self-hosted with zero-config TLS
 - **CI/CD:** [GitHub Actions](https://github.com/features/actions) - Automated testing and deployment
 
 ### Web Bluetooth API
 
 This app requires a browser with Web Bluetooth support:
 
-- ✅ Chrome (Desktop & Android)
-- ✅ Edge (Desktop)
-- ✅ Opera (Desktop & Android)
-- ❌ Firefox (not supported)
-- ❌ Safari (not supported)
+- Chrome (Desktop & Android)
+- Edge (Desktop)
+- Opera (Desktop & Android)
+- Firefox (not supported)
+- Safari (not supported)
 
 **Note:** HTTPS or localhost is required for Web Bluetooth to work.
 
@@ -279,10 +390,12 @@ pnpm test:e2e:debug    # Debug mode
 
 - [x] Add 01 game modes (301, 501, 701)
 - [x] Add sound effects and animations
-- [x] Support for multiple languages (EN/FR)
+- [x] Support for multiple languages (EN/FR/ES)
 - [x] Dark/light theme toggle
 - [x] Player turn history tracking
 - [x] Undo functionality for both games
+- [x] Live spectator mode (WebSocket broadcasting)
+- [x] Docker deployment with Cloudflare Tunnel
 - [ ] Implement practice mode with training exercises
 - [ ] Add party games (Shanghai, Around the Clock, etc.)
 - [ ] Create match mode for tournaments
@@ -330,7 +443,3 @@ If you encounter any issues or have questions:
 - Open an [issue](https://github.com/bastiennoel93/granboard-app/issues)
 - Check existing issues for solutions
 - Review the [Web Bluetooth API documentation](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)
-
----
-
-**Made with ❤️ by the Granboard community**
