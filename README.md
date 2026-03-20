@@ -110,25 +110,24 @@ cd granboard-app
 
 ```bash
 pnpm install
-```
-
-3. Install WebSocket server dependencies:
-
-```bash
 cd server && npm install && cd ..
 ```
 
-4. Start both the dev server and WebSocket server:
+3. Start both services (pick one method):
 
 ```bash
-# Terminal 1 - Next.js
-pnpm dev
+# Option A: Single command (runs both concurrently)
+pnpm dev:all
 
-# Terminal 2 - WebSocket server
-cd server && npm run dev
+# Option B: Separate terminals
+pnpm dev              # Terminal 1 - Next.js (port 8080)
+pnpm dev:server       # Terminal 2 - WebSocket server (port 3001)
+
+# Option C: Docker (hot reload included)
+pnpm dev:docker       # Runs docker-compose.dev.yml
 ```
 
-5. Open [http://localhost:8080](http://localhost:8080) in your browser
+4. Open [http://localhost:8080](http://localhost:8080) in your browser
 
 ### Self-Hosted Deployment (Docker)
 
@@ -275,7 +274,8 @@ granboard-app/
 │   │   ├── index.ts            # Server entry point & event handlers
 │   │   ├── rooms.ts            # Room management & lifecycle
 │   │   └── types.ts            # Shared WebSocket event types
-│   ├── Dockerfile              # Server container
+│   ├── Dockerfile              # Server container (production)
+│   ├── Dockerfile.dev          # Server container (development, hot reload)
 │   ├── package.json            # Server dependencies (npm)
 │   └── tsconfig.json           # Server TypeScript config
 ├── services/                    # Business logic & game engines
@@ -300,8 +300,10 @@ granboard-app/
 │   └── assets/                # Images and sounds
 ├── docs/                       # Documentation
 │   └── screenshots/            # README screenshots
-├── Dockerfile                  # Next.js app container
-├── docker-compose.yml          # Full deployment (web + ws)
+├── Dockerfile                  # Next.js app container (production)
+├── Dockerfile.dev              # Next.js app container (development, hot reload)
+├── docker-compose.yml          # Production deployment (web + ws)
+├── docker-compose.dev.yml      # Development deployment (hot reload)
 └── .github/workflows/
     ├── ci.yml                  # Tests, lint, build on PRs
     └── deploy.yml              # Auto-deploy to self-hosted runner on push to main
@@ -322,11 +324,16 @@ granboard-app/
 ```bash
 # Development
 pnpm dev              # Start Next.js dev server (port 8080)
-pnpm build            # Build for production
+pnpm dev:server       # Start WebSocket server in watch mode (port 3001)
+pnpm dev:all          # Start both frontend + server concurrently
+pnpm dev:docker       # Start both via Docker with hot reload
+pnpm build            # Build Next.js for production
+pnpm build:server     # Build WebSocket server
+pnpm build:all        # Build both frontend + server
 pnpm start            # Start production server
 pnpm lint             # Run ESLint
 
-# WebSocket Server
+# WebSocket Server (standalone)
 cd server
 npm run dev           # Start server in watch mode (port 3001)
 npm run build         # Compile TypeScript

@@ -1,0 +1,46 @@
+# ─── Local Development ─────────────────────────────────────────
+# Usage:  docker compose -f docker-compose.dev.yml up --build
+#
+# Hot-reload enabled for both services.
+# Next.js:  http://localhost:8080
+# WS:       http://localhost:3001
+# Health:   http://localhost:3001/health
+
+services:
+  # ─── Next.js Frontend (dev mode with hot reload) ─────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_WS_URL=http://localhost:3001
+    volumes:
+      - ./app:/app/app
+      - ./services:/app/services
+      - ./constants:/app/constants
+      - ./i18n:/app/i18n
+      - ./messages:/app/messages
+      - ./public:/app/public
+      - ./next.config.mjs:/app/next.config.mjs
+      - ./tailwind.config.ts:/app/tailwind.config.ts
+      - ./postcss.config.js:/app/postcss.config.js
+      - ./globals.css:/app/globals.css
+    depends_on:
+      - ws
+
+  # ─── WebSocket Server (dev mode with hot reload) ────────────
+  ws:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - CORS_ORIGIN=http://localhost:8080,http://localhost:3000
+    volumes:
+      - ./server/src:/app/src

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import QRCode from "qrcode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faQrcode, faEye, faCopy, faCheck, faXmark, faShareNodes } from "@fortawesome/free-solid-svg-icons";
+import { faQrcode, faEye, faCopy, faCheck, faXmark, faShareNodes, faTowerBroadcast, faCircleStop } from "@fortawesome/free-solid-svg-icons";
 
 interface ShareGameDialogProps {
   roomCode: string | null;
@@ -82,10 +82,11 @@ export function ShareGameDialog({
     return (
       <div className="flex items-center gap-2">
         {roomCode && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-green-400 font-mono font-bold">{roomCode}</span>
-            <FontAwesomeIcon icon={faEye} className="text-theme-muted" />
-            <span className="text-theme-muted">{spectatorCount}</span>
+          <div className="flex items-center gap-2 text-sm bg-theme-card border border-theme-card rounded-lg px-2.5 py-1.5">
+            <span className="text-accent font-mono font-bold tracking-wider">{roomCode}</span>
+            <div className="w-px h-4 bg-theme-secondary" />
+            <FontAwesomeIcon icon={faEye} className="text-theme-muted text-xs" />
+            <span className="text-theme-muted font-medium">{spectatorCount}</span>
           </div>
         )}
         <button
@@ -96,10 +97,14 @@ export function ShareGameDialog({
               setShowDialog(true);
             }
           }}
-          className="px-3 py-1.5 bg-purple-700 text-white rounded-lg hover:bg-purple-600 transition-all text-sm font-medium flex items-center gap-2"
+          className={`px-3 py-1.5 rounded-lg transition-all text-sm font-medium flex items-center gap-2 ${
+            roomCode
+              ? "bg-purple-600/15 text-purple-400 border border-purple-500/30 hover:bg-purple-600/25"
+              : "bg-purple-600 text-white hover:bg-purple-500 shadow-sm"
+          }`}
           title={t("spectator.shareGame")}
         >
-          <FontAwesomeIcon icon={faShareNodes} />
+          <FontAwesomeIcon icon={roomCode ? faShareNodes : faTowerBroadcast} className="text-xs" />
           {!roomCode ? t("spectator.goLive") : t("spectator.share")}
         </button>
       </div>
@@ -108,89 +113,113 @@ export function ShareGameDialog({
 
   // ─── Full dialog ───────────────────────────────────────────
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-theme-elevated rounded-2xl border-2 border-theme-primary max-w-md w-full overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowDialog(false)}>
+      <div
+        className="bg-theme-elevated rounded-2xl border border-theme-primary max-w-md w-full overflow-hidden shadow-2xl animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex justify-between items-center p-6 pb-4 border-b border-theme-primary">
-          <h3 className="font-bold text-theme-primary text-2xl flex items-center gap-2">
-            <FontAwesomeIcon icon={faShareNodes} className="text-purple-500" />
-            {t("spectator.shareGame")}
-          </h3>
+        <div className="flex justify-between items-center p-5 pb-4 border-b border-theme-primary">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-600/15 flex items-center justify-center">
+              <FontAwesomeIcon icon={faTowerBroadcast} className="text-purple-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-theme-primary text-lg leading-tight">
+                {t("spectator.shareGame")}
+              </h3>
+              {roomCode && (
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-live-dot" />
+                  <span className="text-xs text-green-400 font-medium">LIVE</span>
+                </div>
+              )}
+            </div>
+          </div>
           <button
             onClick={() => setShowDialog(false)}
-            className="text-theme-tertiary hover:text-theme-primary text-2xl font-bold px-3 py-1 bg-theme-interactive-hover rounded-lg transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-theme-tertiary hover:text-theme-primary bg-theme-secondary hover:bg-theme-tertiary rounded-lg transition-all"
           >
-            <FontAwesomeIcon icon={faXmark} />
+            <FontAwesomeIcon icon={faXmark} className="text-sm" />
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-5 space-y-4">
           {!roomCode ? (
             /* No room yet - offer to create */
-            <div className="text-center space-y-4">
-              <p className="text-theme-muted">
-                {t("spectator.createRoomDescription")}
-              </p>
+            <div className="text-center space-y-5 py-4">
+              <div className="w-16 h-16 rounded-2xl bg-purple-600/10 flex items-center justify-center mx-auto">
+                <FontAwesomeIcon icon={faTowerBroadcast} className="text-purple-400 text-2xl" />
+              </div>
+              <div>
+                <p className="text-theme-secondary text-sm leading-relaxed">
+                  {t("spectator.createRoomDescription")}
+                </p>
+              </div>
               <button
                 onClick={async () => {
                   await onCreateRoom();
                 }}
                 disabled={!isConnected || roomState === "creating"}
-                className="px-6 py-3 bg-purple-700 text-white rounded-xl font-bold text-lg hover:bg-purple-600 transition-all disabled:opacity-50"
+                className="px-8 py-3 bg-purple-600 text-white rounded-xl font-bold text-base hover:bg-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-600/20"
               >
                 {roomState === "creating" ? t("spectator.creating") : t("spectator.goLive")}
               </button>
               {!isConnected && (
-                <p className="text-red-400 text-sm">{t("spectator.serverUnavailable")}</p>
+                <p className="text-red-400 text-xs font-medium">{t("spectator.serverUnavailable")}</p>
               )}
             </div>
           ) : (
             /* Room active - show sharing options */
-            <>
+            <div className="space-y-4 stagger-children">
               {/* QR Code */}
               {qrDataUrl && (
-                <div className="flex flex-col items-center gap-3">
-                  <img
-                    src={qrDataUrl}
-                    alt="QR Code"
-                    className="rounded-xl shadow-lg"
-                    width={200}
-                    height={200}
-                  />
-                  <p className="text-sm text-theme-muted text-center">
+                <div className="flex flex-col items-center gap-3 animate-fade-in-up">
+                  <div className="bg-white p-3 rounded-xl shadow-lg">
+                    <img
+                      src={qrDataUrl}
+                      alt="QR Code"
+                      className="rounded-lg"
+                      width={180}
+                      height={180}
+                    />
+                  </div>
+                  <p className="text-xs text-theme-muted text-center">
                     {t("spectator.scanQr")}
                   </p>
                 </div>
               )}
 
               {/* Game Code */}
-              <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-                <div className="text-xs text-theme-muted uppercase mb-2">{t("spectator.gameCode")}</div>
+              <div className="bg-theme-card rounded-xl p-4 border border-theme-card animate-fade-in-up">
+                <div className="text-[10px] text-theme-muted uppercase tracking-wider font-medium mb-2">{t("spectator.gameCode")}</div>
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl font-mono font-black text-accent tracking-wider">
+                  <span className="text-3xl font-mono font-black text-accent tracking-[0.2em]">
                     {roomCode}
                   </span>
                   <button
                     onClick={handleCopyCode}
-                    className="px-3 py-2 bg-theme-interactive text-theme-interactive bg-theme-interactive-hover rounded-lg transition-all text-sm"
+                    className="px-3 py-2 bg-theme-secondary hover:bg-theme-tertiary text-theme-secondary rounded-lg transition-all text-sm"
+                    title="Copy code"
                   >
-                    <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
+                    <FontAwesomeIcon icon={copied ? faCheck : faCopy} className={copied ? "text-green-400" : ""} />
                   </button>
                 </div>
               </div>
 
               {/* Watch URL */}
-              <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-                <div className="text-xs text-theme-muted uppercase mb-2">{t("spectator.watchLink")}</div>
+              <div className="bg-theme-card rounded-xl p-4 border border-theme-card animate-fade-in-up">
+                <div className="text-[10px] text-theme-muted uppercase tracking-wider font-medium mb-2">{t("spectator.watchLink")}</div>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-sm text-theme-primary font-mono bg-theme-secondary rounded px-2 py-1 overflow-hidden text-ellipsis">
+                  <code className="flex-1 text-xs text-theme-secondary font-mono bg-theme-secondary rounded-lg px-3 py-2 overflow-hidden text-ellipsis whitespace-nowrap block">
                     {watchUrl}
                   </code>
                   <button
                     onClick={handleCopyLink}
-                    className="px-3 py-2 bg-theme-interactive text-theme-interactive bg-theme-interactive-hover rounded-lg transition-all text-sm flex-shrink-0"
+                    className="px-3 py-2 bg-theme-secondary hover:bg-theme-tertiary text-theme-secondary rounded-lg transition-all text-sm flex-shrink-0"
+                    title="Copy link"
                   >
-                    <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
+                    <FontAwesomeIcon icon={copied ? faCheck : faCopy} className={copied ? "text-green-400" : ""} />
                   </button>
                 </div>
               </div>
@@ -199,30 +228,31 @@ export function ShareGameDialog({
               {typeof navigator !== "undefined" && "share" in navigator && (
                 <button
                   onClick={handleShare}
-                  className="w-full px-4 py-3 bg-accent text-white rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2"
+                  className="w-full px-4 py-3 bg-accent text-white rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm animate-fade-in-up"
                 >
                   <FontAwesomeIcon icon={faShareNodes} />
                   {t("spectator.shareNative")}
                 </button>
               )}
 
-              {/* Spectator count */}
-              <div className="flex items-center justify-center gap-2 text-theme-muted">
-                <FontAwesomeIcon icon={faEye} />
-                <span>{t("spectator.spectators", { count: spectatorCount })}</span>
+              {/* Spectator count + stop sharing row */}
+              <div className="flex items-center justify-between pt-1 animate-fade-in-up">
+                <div className="flex items-center gap-2 text-theme-muted text-sm">
+                  <FontAwesomeIcon icon={faEye} className="text-xs" />
+                  <span>{t("spectator.spectators", { count: spectatorCount })}</span>
+                </div>
+                <button
+                  onClick={() => {
+                    onCloseRoom();
+                    setShowDialog(false);
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 text-red-400 hover:bg-red-600/15 rounded-lg transition-all text-xs font-medium"
+                >
+                  <FontAwesomeIcon icon={faCircleStop} className="text-xs" />
+                  {t("spectator.stopSharing")}
+                </button>
               </div>
-
-              {/* Stop sharing */}
-              <button
-                onClick={() => {
-                  onCloseRoom();
-                  setShowDialog(false);
-                }}
-                className="w-full px-4 py-2 bg-red-600/20 text-red-400 rounded-xl hover:bg-red-600/30 transition-all text-sm"
-              >
-                {t("spectator.stopSharing")}
-              </button>
-            </>
+            </div>
           )}
         </div>
       </div>

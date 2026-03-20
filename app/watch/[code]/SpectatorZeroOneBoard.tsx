@@ -28,13 +28,15 @@ export function SpectatorZeroOneBoard({ gameState, currentTurnHits, lastHit }: S
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Game info header */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-theme-muted uppercase tracking-wider">
-          {gameState.mode} {gameState.doubleOut ? "(Double Out)" : ""}
+    <div className="flex flex-col gap-3 h-full">
+      {/* Game info bar */}
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-theme-muted">
+            {gameState.mode} {gameState.doubleOut ? "(Double Out)" : ""}
+          </span>
         </div>
-        <div className="text-sm text-theme-muted">
+        <div className="text-xs font-medium text-theme-muted bg-theme-card border border-theme-card rounded-lg px-3 py-1">
           {t("round")} {gameState.currentRound}
           {gameState.maxRounds > 0 ? ` / ${gameState.maxRounds}` : ""}
         </div>
@@ -42,73 +44,126 @@ export function SpectatorZeroOneBoard({ gameState, currentTurnHits, lastHit }: S
 
       {/* Game over banner */}
       {gameState.gameFinished && gameState.winner && (
-        <div className="bg-yellow-600 text-white rounded-xl p-4 text-center">
-          <div className="text-3xl font-bold">{gameState.winner.name} won!</div>
+        <div className="bg-gradient-to-r from-yellow-600 to-amber-500 text-white rounded-xl p-4 text-center animate-scale-in">
+          <div className="text-3xl font-black tracking-tight">{gameState.winner.name} won!</div>
         </div>
       )}
 
-      {/* Current player indicator */}
+      {/* Current player + dart count */}
       {!gameState.gameFinished && (
-        <div className="bg-accent/20 border border-accent/40 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <span className="text-sm text-theme-muted">Current:</span>
-            <span className="text-lg font-bold text-accent ml-2">{currentPlayer?.player.name}</span>
+        <div className="bg-theme-card border border-accent/20 rounded-xl p-3 flex items-center justify-between animate-glow-pulse">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center">
+              <span className="text-accent text-xs font-black">&#x25B6;</span>
+            </div>
+            <div>
+              <div className="text-xs text-theme-muted">{t("currentPlayer")}</div>
+              <div className="text-base font-bold text-accent">{currentPlayer?.player.name}</div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`w-4 h-4 rounded-full ${
-                  i < gameState.dartsThrown ? "bg-accent" : "bg-theme-secondary"
-                }`}
-              />
-            ))}
-          </div>
-          {currentTurnHits.length > 0 && (
-            <div className="flex gap-1">
-              {currentTurnHits.map((hit, i) => (
-                <span
+          <div className="flex items-center gap-4">
+            {/* Current turn hits */}
+            {currentTurnHits.length > 0 && (
+              <div className="flex gap-1.5">
+                {currentTurnHits.map((hit, i) => (
+                  <span
+                    key={i}
+                    className="px-2.5 py-1 bg-accent/15 text-accent rounded-lg text-xs font-bold border border-accent/20"
+                  >
+                    {hit.ShortName}
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* Dart dots */}
+            <div className="flex gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <div
                   key={i}
-                  className="px-2 py-1 bg-accent/30 text-accent rounded text-xs font-bold"
-                >
-                  {hit.ShortName}
-                </span>
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    i < gameState.dartsThrown
+                      ? "bg-accent shadow-sm shadow-accent/30"
+                      : "bg-theme-secondary"
+                  }`}
+                />
               ))}
             </div>
-          )}
+          </div>
         </div>
       )}
 
       {/* Player scores grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1 stagger-children">
         {gameState.players.map((player, idx) => {
           const isCurrentPlayer = idx === gameState.currentPlayerIndex;
           const ppd = calculatePPD(player);
           const avg = calculateAverage(player);
+          const isWinner = gameState.gameFinished && player.score === 0;
 
           return (
             <div
               key={player.player.id}
-              className={`bg-theme-card rounded-xl border-2 p-6 flex flex-col items-center justify-center transition-all ${
-                isCurrentPlayer && !gameState.gameFinished
-                  ? "border-accent shadow-lg shadow-accent/20"
+              className={`bg-theme-card rounded-xl border p-5 flex flex-col items-center justify-center transition-all animate-fade-in-up ${
+                isWinner
+                  ? "border-yellow-500/50 shadow-lg shadow-yellow-500/10"
+                  : isCurrentPlayer && !gameState.gameFinished
+                  ? "border-accent/40 shadow-lg shadow-accent/10"
                   : "border-theme-card"
               }`}
             >
-              <div className={`text-lg font-bold mb-2 ${isCurrentPlayer ? "text-accent" : "text-theme-primary"}`}>
-                {player.player.name}
+              {/* Player name */}
+              <div className="flex items-center gap-2 mb-3">
+                {isCurrentPlayer && !gameState.gameFinished && (
+                  <div className="w-2 h-2 rounded-full bg-accent animate-live-dot" />
+                )}
+                {isWinner && (
+                  <span className="text-yellow-500 text-sm">&#9733;</span>
+                )}
+                <span className={`text-sm font-bold uppercase tracking-wider ${
+                  isWinner
+                    ? "text-yellow-500"
+                    : isCurrentPlayer && !gameState.gameFinished
+                    ? "text-accent"
+                    : "text-theme-muted"
+                }`}>
+                  {player.player.name}
+                </span>
               </div>
-              <div className="text-7xl font-black text-theme-primary mb-3">
+
+              {/* Big score */}
+              <div className={`text-7xl font-black tracking-tight mb-4 transition-all ${
+                isWinner
+                  ? "text-yellow-500"
+                  : isCurrentPlayer && !gameState.gameFinished
+                  ? "text-accent"
+                  : "text-theme-primary"
+              }`}>
                 {player.score}
               </div>
-              <div className="flex gap-4 text-sm text-theme-muted">
-                <span>PPD: <strong className="text-theme-primary">{ppd}</strong></span>
-                <span>{t("average")}: <strong className="text-theme-primary">{avg}</strong></span>
-                <span>{t("darts")}: <strong className="text-theme-primary">{player.dartsThrown}</strong></span>
+
+              {/* Stats row */}
+              <div className="flex gap-4 text-xs text-theme-muted">
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[10px] uppercase tracking-wider">PPD</span>
+                  <span className="text-sm font-bold text-theme-primary">{ppd.toFixed(2)}</span>
+                </div>
+                <div className="w-px h-6 bg-theme-card" />
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[10px] uppercase tracking-wider">{t("average")}</span>
+                  <span className="text-sm font-bold text-theme-primary">{avg.toFixed(2)}</span>
+                </div>
+                <div className="w-px h-6 bg-theme-card" />
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[10px] uppercase tracking-wider">{t("darts")}</span>
+                  <span className="text-sm font-bold text-theme-primary">{player.dartsThrown}</span>
+                </div>
               </div>
+
+              {/* Busts indicator */}
               {player.busts > 0 && (
-                <div className="mt-1 text-xs text-red-500">
-                  Busts: {player.busts}
+                <div className="mt-2 flex items-center gap-1.5 text-red-400 text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                  <span className="font-medium">Busts: {player.busts}</span>
                 </div>
               )}
             </div>
@@ -118,8 +173,9 @@ export function SpectatorZeroOneBoard({ gameState, currentTurnHits, lastHit }: S
 
       {/* Last hit indicator */}
       {lastHit && (
-        <div className="text-center">
-          <span className="inline-block px-4 py-2 bg-accent/20 text-accent rounded-lg text-sm font-bold animate-pulse">
+        <div className="text-center animate-fade-in">
+          <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent rounded-xl text-sm font-bold border border-accent/20">
+            <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
             {lastHit.LongName} ({lastHit.Value})
           </span>
         </div>

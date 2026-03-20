@@ -42,13 +42,15 @@ export function SpectatorCricketBoard({ gameState, currentTurnHits, lastHit }: S
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Game info header */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-theme-muted uppercase tracking-wider">
-          {gameState.mode === "cutthroat" ? "Cricket Cut Throat" : "Cricket Standard"}
+    <div className="flex flex-col gap-3 h-full">
+      {/* Game info bar */}
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-theme-muted">
+            {gameState.mode === "cutthroat" ? "Cricket Cut Throat" : "Cricket Standard"}
+          </span>
         </div>
-        <div className="text-sm text-theme-muted">
+        <div className="text-xs font-medium text-theme-muted bg-theme-card border border-theme-card rounded-lg px-3 py-1">
           {t("round")} {gameState.currentRound}
           {gameState.maxRounds > 0 ? ` / ${gameState.maxRounds}` : ""}
         </div>
@@ -56,85 +58,95 @@ export function SpectatorCricketBoard({ gameState, currentTurnHits, lastHit }: S
 
       {/* Game over banner */}
       {gameState.gameFinished && gameState.winner && (
-        <div className="bg-yellow-600 text-white rounded-xl p-4 text-center">
-          <div className="text-3xl font-bold">{t("wonGame", { name: gameState.winner.name })}</div>
+        <div className="bg-gradient-to-r from-yellow-600 to-amber-500 text-white rounded-xl p-4 text-center animate-scale-in">
+          <div className="text-3xl font-black tracking-tight">{t("wonGame", { name: gameState.winner.name })}</div>
         </div>
       )}
 
       {/* Current player + dart count */}
       {!gameState.gameFinished && (
-        <div className="bg-accent/20 border border-accent/40 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <span className="text-sm text-theme-muted">{t("currentPlayer")}:</span>
-            <span className="text-lg font-bold text-accent ml-2">{currentPlayer?.player.name}</span>
+        <div className="bg-theme-card border border-accent/20 rounded-xl p-3 flex items-center justify-between animate-glow-pulse">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center">
+              <span className="text-accent text-xs font-black">&#x25B6;</span>
+            </div>
+            <div>
+              <div className="text-xs text-theme-muted">{t("currentPlayer")}</div>
+              <div className="text-base font-bold text-accent">{currentPlayer?.player.name}</div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`w-4 h-4 rounded-full ${
-                  i < gameState.dartsThrown ? "bg-accent" : "bg-theme-secondary"
-                }`}
-              />
-            ))}
-          </div>
-          {/* Show current turn hits */}
-          {currentTurnHits.length > 0 && (
-            <div className="flex gap-1">
-              {currentTurnHits.map((hit, i) => (
-                <span
+          <div className="flex items-center gap-4">
+            {/* Current turn hits */}
+            {currentTurnHits.length > 0 && (
+              <div className="flex gap-1.5">
+                {currentTurnHits.map((hit, i) => (
+                  <span
+                    key={i}
+                    className="px-2.5 py-1 bg-accent/15 text-accent rounded-lg text-xs font-bold border border-accent/20"
+                  >
+                    {hit.ShortName}
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* Dart dots */}
+            <div className="flex gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <div
                   key={i}
-                  className="px-2 py-1 bg-accent/30 text-accent rounded text-xs font-bold"
-                >
-                  {hit.ShortName}
-                </span>
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    i < gameState.dartsThrown
+                      ? "bg-accent shadow-sm shadow-accent/30"
+                      : "bg-theme-secondary"
+                  }`}
+                />
               ))}
             </div>
-          )}
+          </div>
         </div>
       )}
 
       {/* Scoreboard */}
-      <div className="bg-theme-card rounded-xl shadow-2xl border-2 border-theme-card flex-1 overflow-auto">
+      <div className="bg-theme-card rounded-xl shadow-lg border border-theme-card flex-1 overflow-auto">
         <table className="w-full border-collapse">
           <thead className="sticky top-0 bg-theme-card z-10">
-            <tr className="border-b-2 border-accent">
+            <tr className="border-b-2 border-accent/30">
               {leftPlayers.map((p) => {
                 const isCurrentPlayer = gameState.players.indexOf(p) === gameState.currentPlayerIndex;
                 return (
                   <th
                     key={p.player.id}
-                    className={`p-2 text-center font-bold text-sm min-w-[70px] ${
+                    className={`p-2.5 text-center font-bold text-sm min-w-[70px] transition-all ${
                       isCurrentPlayer && !gameState.gameFinished
-                        ? "text-accent border-b-4 border-accent"
+                        ? "text-accent"
                         : "text-theme-primary"
                     }`}
                   >
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span>{p.player.name}</span>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className={isCurrentPlayer && !gameState.gameFinished ? "text-accent" : ""}>{p.player.name}</span>
                       {isCurrentPlayer && !gameState.gameFinished && (
-                        <span className="text-accent text-xs">&#x25BC;</span>
+                        <div className="w-full h-0.5 bg-accent rounded-full" />
                       )}
                     </div>
                   </th>
                 );
               })}
-              <th className="p-2 text-center font-bold text-theme-primary text-base min-w-[50px] border-x-2 border-theme-card" />
+              <th className="p-2.5 text-center font-bold text-theme-primary text-base min-w-[50px] border-x border-theme-card" />
               {rightPlayers.map((p) => {
                 const isCurrentPlayer = gameState.players.indexOf(p) === gameState.currentPlayerIndex;
                 return (
                   <th
                     key={p.player.id}
-                    className={`p-2 text-center font-bold text-sm min-w-[70px] ${
+                    className={`p-2.5 text-center font-bold text-sm min-w-[70px] transition-all ${
                       isCurrentPlayer && !gameState.gameFinished
-                        ? "text-accent border-b-4 border-accent"
+                        ? "text-accent"
                         : "text-theme-primary"
                     }`}
                   >
-                    <div className="flex flex-col items-center gap-0.5">
+                    <div className="flex flex-col items-center gap-1">
                       <span>{p.player.name}</span>
                       {isCurrentPlayer && !gameState.gameFinished && (
-                        <span className="text-accent text-xs">&#x25BC;</span>
+                        <div className="w-full h-0.5 bg-accent rounded-full" />
                       )}
                     </div>
                   </th>
@@ -148,43 +160,45 @@ export function SpectatorCricketBoard({ gameState, currentTurnHits, lastHit }: S
               return (
                 <tr
                   key={num}
-                  className={`border-b border-theme-card ${allClosed ? "bg-theme-elevated-alpha" : ""}`}
+                  className={`border-b border-theme-card/50 transition-all ${allClosed ? "opacity-40" : ""}`}
                 >
                   {leftPlayers.map((p) => {
                     const score = p.scores[num];
-                    const symbol = getMarkSymbol(score?.marks ?? 0);
-                    const isClosed = (score?.marks ?? 0) >= 3;
+                    const marks = score?.marks ?? 0;
+                    const symbol = getMarkSymbol(marks);
+                    const isClosed = marks >= 3;
                     return (
-                      <td key={p.player.id} className={`p-2 text-center ${allClosed ? "bg-theme-secondary" : ""}`}>
+                      <td key={p.player.id} className="p-2 text-center">
                         <div
-                          className={`text-2xl font-bold ${
+                          className={`text-2xl font-bold transition-all ${
                             isClosed
                               ? allClosed ? "text-theme-muted" : "text-green-400"
-                              : (score?.marks ?? 0) > 0 ? "text-accent" : "text-theme-interactive"
+                              : marks > 0 ? "text-accent" : "text-theme-tertiary"
                           }`}
                         >
-                          {symbol || "-"}
+                          {symbol || "\u2013"}
                         </div>
                       </td>
                     );
                   })}
-                  <td className={`p-2 text-center font-bold text-xl border-x-2 border-theme-card ${allClosed ? "text-theme-muted" : "text-theme-primary"}`}>
+                  <td className={`p-2 text-center font-black text-lg border-x border-theme-card/50 ${allClosed ? "text-theme-muted line-through" : "text-theme-primary"}`}>
                     {num === 25 ? "BULL" : num}
                   </td>
                   {rightPlayers.map((p) => {
                     const score = p.scores[num];
-                    const symbol = getMarkSymbol(score?.marks ?? 0);
-                    const isClosed = (score?.marks ?? 0) >= 3;
+                    const marks = score?.marks ?? 0;
+                    const symbol = getMarkSymbol(marks);
+                    const isClosed = marks >= 3;
                     return (
-                      <td key={p.player.id} className={`p-2 text-center ${allClosed ? "bg-theme-secondary" : ""}`}>
+                      <td key={p.player.id} className="p-2 text-center">
                         <div
-                          className={`text-2xl font-bold ${
+                          className={`text-2xl font-bold transition-all ${
                             isClosed
                               ? allClosed ? "text-theme-muted" : "text-green-400"
-                              : (score?.marks ?? 0) > 0 ? "text-accent" : "text-theme-interactive"
+                              : marks > 0 ? "text-accent" : "text-theme-tertiary"
                           }`}
                         >
-                          {symbol || "-"}
+                          {symbol || "\u2013"}
                         </div>
                       </td>
                     );
@@ -193,20 +207,20 @@ export function SpectatorCricketBoard({ gameState, currentTurnHits, lastHit }: S
               );
             })}
             {/* Points / MPR row */}
-            <tr className="border-t-2 border-accent">
+            <tr className="border-t-2 border-accent/30 bg-theme-elevated/50">
               {leftPlayers.map((p) => (
-                <td key={p.player.id} className="p-2 text-center">
-                  <div className="text-lg font-bold text-theme-primary">{p.totalPoints}</div>
-                  <div className="text-xs text-theme-muted">MPR: {calculateMPR(p)}</div>
+                <td key={p.player.id} className="p-3 text-center">
+                  <div className="text-xl font-black text-theme-primary">{p.totalPoints}</div>
+                  <div className="text-[10px] font-medium text-theme-muted uppercase tracking-wider">MPR {calculateMPR(p)}</div>
                 </td>
               ))}
-              <td className="p-2 text-center font-bold text-sm text-theme-muted border-x-2 border-theme-card">
+              <td className="p-3 text-center font-bold text-xs text-theme-muted border-x border-theme-card/50 uppercase tracking-wider">
                 PTS
               </td>
               {rightPlayers.map((p) => (
-                <td key={p.player.id} className="p-2 text-center">
-                  <div className="text-lg font-bold text-theme-primary">{p.totalPoints}</div>
-                  <div className="text-xs text-theme-muted">MPR: {calculateMPR(p)}</div>
+                <td key={p.player.id} className="p-3 text-center">
+                  <div className="text-xl font-black text-theme-primary">{p.totalPoints}</div>
+                  <div className="text-[10px] font-medium text-theme-muted uppercase tracking-wider">MPR {calculateMPR(p)}</div>
                 </td>
               ))}
             </tr>
@@ -216,8 +230,9 @@ export function SpectatorCricketBoard({ gameState, currentTurnHits, lastHit }: S
 
       {/* Last hit indicator */}
       {lastHit && (
-        <div className="text-center">
-          <span className="inline-block px-4 py-2 bg-accent/20 text-accent rounded-lg text-sm font-bold animate-pulse">
+        <div className="text-center animate-fade-in">
+          <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent rounded-xl text-sm font-bold border border-accent/20">
+            <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
             {lastHit.LongName} ({lastHit.Value})
           </span>
         </div>
