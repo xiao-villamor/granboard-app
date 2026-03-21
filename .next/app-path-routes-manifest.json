@@ -1,0 +1,18 @@
+{
+  "/01/game/page": "/01/game",
+  "/01/page": "/01",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/cricket/game/page": "/cricket/game",
+  "/cricket/page": "/cricket",
+  "/debug/animations/page": "/debug/animations",
+  "/debug/sounds/page": "/debug/sounds",
+  "/favicon.ico/route": "/favicon.ico",
+  "/icon.svg/route": "/icon.svg",
+  "/page": "/",
+  "/training/checkout/page": "/training/checkout",
+  "/training/free-throw/page": "/training/free-throw",
+  "/training/page": "/training",
+  "/training/target-practice/page": "/training/target-practice",
+  "/watch/[code]/page": "/watch/[code]"
+}

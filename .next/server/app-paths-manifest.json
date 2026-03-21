@@ -1,0 +1,18 @@
+{
+  "/01/game/page": "app/01/game/page.js",
+  "/01/page": "app/01/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/cricket/game/page": "app/cricket/game/page.js",
+  "/cricket/page": "app/cricket/page.js",
+  "/debug/animations/page": "app/debug/animations/page.js",
+  "/debug/sounds/page": "app/debug/sounds/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/icon.svg/route": "app/icon.svg/route.js",
+  "/page": "app/page.js",
+  "/training/checkout/page": "app/training/checkout/page.js",
+  "/training/free-throw/page": "app/training/free-throw/page.js",
+  "/training/page": "app/training/page.js",
+  "/training/target-practice/page": "app/training/target-practice/page.js",
+  "/watch/[code]/page": "app/watch/[code]/page.js"
+}

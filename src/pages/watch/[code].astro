@@ -1,0 +1,9 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SpectatorPage from '@/components/watch/SpectatorPage.svelte';
+const { code } = Astro.params;
+---
+
+<BaseLayout title="Watch Game - Granboard App">
+  <SpectatorPage code={code} client:load />
+</BaseLayout>

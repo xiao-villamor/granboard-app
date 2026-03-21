@@ -1,16 +1,18 @@
 services:
-  # ─── Next.js Frontend ─────────────────────────────────────────
+  # ─── Astro Frontend ──────────────────────────────────────────
   web:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        # Set to your Cloudflare Tunnel domain (e.g. https://darts.yourdomain.com)
-        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-https://darts.yourdomain.com}
+        # Set to your tunnel/proxy domain (e.g. https://darts.yourdomain.com)
+        PUBLIC_WS_URL: ${PUBLIC_WS_URL:-https://darts.yourdomain.com}
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3000
     restart: unless-stopped
     depends_on:
       - ws
@@ -27,15 +29,14 @@ services:
       - PORT=3001
     restart: unless-stopped
 
-# ─── Cloudflare Tunnel Setup ─────────────────────────────────────
-# Configure two public hostnames in your Cloudflare Tunnel:
+# ─── Reverse Proxy / Tunnel Setup ────────────────────────────────
+# Configure two public hostnames in your reverse proxy or Cloudflare Tunnel:
 #
-#   1. darts.yourdomain.com  ->  http://localhost:3000  (Next.js)
+#   1. darts.yourdomain.com  ->  http://localhost:3000  (Astro)
 #   2. ws.darts.yourdomain.com  ->  http://localhost:3001  (WebSocket)
 #
 # Or use a single domain with path-based routing:
 #   - darts.yourdomain.com/socket.io/*  ->  http://localhost:3001
 #   - darts.yourdomain.com/*            ->  http://localhost:3000
 #
-# Make sure to enable WebSocket support in the Cloudflare dashboard
-# for the WebSocket hostname (Network > WebSockets = On).
+# Make sure to enable WebSocket support for the WebSocket hostname.

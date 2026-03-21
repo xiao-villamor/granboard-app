@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# ─── Stage 2: Build Next.js ────────────────────────────────────
+# ─── Stage 2: Build Astro ──────────────────────────────────────
 FROM node:22-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
@@ -18,26 +18,24 @@ COPY . .
 RUN rm -rf server
 
 # Set build-time env vars
-ARG NEXT_PUBLIC_WS_URL
-ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
+ARG PUBLIC_WS_URL
+ENV PUBLIC_WS_URL=${PUBLIC_WS_URL}
 
 RUN pnpm build
 
 # ─── Stage 3: Production runner ────────────────────────────────
 FROM node:22-alpine AS runner
-RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV HOST=0.0.0.0
 ENV PORT=3000
 
-# Copy Next.js standalone output
-COPY --from=builder /app/.next ./.next
+# Copy Astro build output and dependencies
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
 
 EXPOSE 3000
 
-CMD ["pnpm", "start", "-p", "3000"]
+CMD ["node", "dist/server/entry.mjs"]
