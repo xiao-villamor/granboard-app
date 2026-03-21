@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Segment } from "@/services/boardinfo";
 import {
   CheckoutPracticeState,
@@ -23,7 +22,6 @@ import {
 
 export default function CheckoutPracticePage() {
   const router = useRouter();
-  const t = useTranslations();
   const { openDialog } = useSettings();
   const [startingScore, setStartingScore] = useState(101);
   const [doubleOut, setDoubleOut] = useState(true);
@@ -62,53 +60,83 @@ export default function CheckoutPracticePage() {
   const lowScores = CHECKOUT_SCORES.filter((s) => s < 100);
 
   return (
-    <main className="min-h-screen bg-theme-primary flex flex-col p-4 gap-4">
+    <main
+      className="min-h-screen flex flex-col p-4 gap-4"
+      style={{ backgroundColor: 'var(--hud-background)' }}
+    >
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <button
             data-testid="back-button"
             onClick={() => router.push("/training")}
-            className="px-3 py-2 bg-theme-interactive text-theme-interactive bg-theme-interactive-hover rounded-lg transition-all flex items-center gap-2"
+            className="px-3 py-2 rounded-lg transition-all flex items-center gap-2"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              color: 'var(--hud-on-surface)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
           >
-            <FontAwesomeIcon icon={faArrowLeft} /> {t("common.back")}
+            <FontAwesomeIcon icon={faArrowLeft} /> Back
           </button>
-          <h1 className="text-2xl font-bold text-theme-primary tracking-wider">
-            {t("training.checkout.title")}
+          <h1
+            className="text-2xl font-bold tracking-wider"
+            style={{ color: 'var(--hud-on-surface)' }}
+          >
+            Checkout
           </h1>
         </div>
         <div className="flex gap-3">
           <button
             onClick={handleReset}
-            className="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-600 transition-all text-sm font-medium flex items-center gap-2"
+            className="px-4 py-2 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            style={{
+              backgroundColor: 'var(--hud-primary)',
+              color: 'var(--hud-on-primary)',
+            }}
           >
             <FontAwesomeIcon icon={faRotateRight} />{" "}
-            {t("training.reset")}
+            Reset
           </button>
           <button
             data-testid="settings-button"
             onClick={() => openDialog()}
-            className="px-4 py-2 bg-theme-interactive text-theme-interactive bg-theme-interactive-hover rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              color: 'var(--hud-on-surface)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
           >
-            <FontAwesomeIcon icon={faGear} /> {t("cricket.game.settings")}
+            <FontAwesomeIcon icon={faGear} /> Settings
           </button>
           {connectionState === "connected" ? (
-            <div className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium text-sm flex items-center gap-2">
+            <div
+              className="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
+              style={{
+                backgroundColor: 'var(--hud-secondary)',
+                color: 'var(--hud-on-secondary)',
+              }}
+            >
               <FontAwesomeIcon icon={faCheck} />{" "}
-              {t("cricket.game.connected")}
+              Connected
             </div>
           ) : (
             <button
               data-testid="connect-button"
               onClick={connectToBoard}
               disabled={connectionState === "connecting"}
-              className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 text-sm font-medium disabled:bg-theme-interactive transition-all"
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50"
+              style={{
+                background: 'linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%)',
+                color: 'var(--hud-on-primary)',
+              }}
             >
               {connectionState === "connecting"
-                ? t("cricket.game.connecting")
+                ? "Connecting..."
                 : connectionState === "error"
-                ? t("cricket.game.errorRetry")
-                : t("cricket.game.connectGranboard")}
+                ? "Error — tap to retry"
+                : "Connect GranBoard"}
             </button>
           )}
         </div>
@@ -116,39 +144,65 @@ export default function CheckoutPracticePage() {
 
       {/* Score selector (only when no attempts yet) */}
       {gameState.totalAttempts === 0 && gameState.currentDarts.length === 0 && (
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-          <h3 className="text-sm font-bold text-theme-muted mb-3 uppercase">
-            {t("training.checkout.selectScore")}
+        <div
+          className="rounded-xl p-4"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <h3
+            className="text-sm font-bold mb-3 uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Select a score
           </h3>
 
           {/* Double out toggle */}
-          <label className="flex items-center gap-3 mb-4 p-3 bg-theme-secondary rounded-lg cursor-pointer">
+          <label
+            className="flex items-center gap-3 mb-4 p-3 rounded-lg cursor-pointer"
+            style={{ backgroundColor: 'var(--hud-surface-container-low)' }}
+          >
             <input
               type="checkbox"
               checked={doubleOut}
               onChange={handleToggleDoubleOut}
-              className="w-5 h-5 text-accent rounded focus:ring-accent"
+              className="w-5 h-5 rounded"
+              style={{ accentColor: 'var(--hud-primary)' }}
             />
-            <span className="font-medium text-theme-primary">
-              {t("zeroOne.options.doubleOut.title")}
+            <span
+              className="font-medium"
+              style={{ color: 'var(--hud-on-surface)' }}
+            >
+              Double Out
             </span>
           </label>
 
           {/* High scores */}
           <div className="mb-2">
-            <span className="text-xs text-theme-muted">
-              {t("training.checkout.high")}
+            <span
+              className="text-xs"
+              style={{ color: 'var(--hud-on-tertiary-container)' }}
+            >
+              High (170–100)
             </span>
             <div className="flex flex-wrap gap-2 mt-1">
               {highScores.map((score) => (
                 <button
                   key={score}
                   onClick={() => handleChangeScore(score)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                  className="px-3 py-1.5 rounded-lg text-sm font-bold transition-all"
+                  style={
                     startingScore === score
-                      ? "bg-teal-700 text-white"
-                      : "bg-theme-secondary text-theme-primary hover:bg-theme-tertiary"
-                  }`}
+                      ? {
+                          backgroundColor: 'var(--hud-primary)',
+                          color: 'var(--hud-on-primary)',
+                        }
+                      : {
+                          backgroundColor: 'var(--hud-surface-container-highest)',
+                          color: 'var(--hud-on-surface)',
+                        }
+                  }
                 >
                   {score}
                 </button>
@@ -158,19 +212,29 @@ export default function CheckoutPracticePage() {
 
           {/* Mid scores */}
           <div className="mb-2">
-            <span className="text-xs text-theme-muted">
-              {t("training.checkout.mid")}
+            <span
+              className="text-xs"
+              style={{ color: 'var(--hud-on-tertiary-container)' }}
+            >
+              Mid (99–60)
             </span>
             <div className="flex flex-wrap gap-2 mt-1">
               {midScores.map((score) => (
                 <button
                   key={score}
                   onClick={() => handleChangeScore(score)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                  className="px-3 py-1.5 rounded-lg text-sm font-bold transition-all"
+                  style={
                     startingScore === score
-                      ? "bg-teal-700 text-white"
-                      : "bg-theme-secondary text-theme-primary hover:bg-theme-tertiary"
-                  }`}
+                      ? {
+                          backgroundColor: 'var(--hud-primary)',
+                          color: 'var(--hud-on-primary)',
+                        }
+                      : {
+                          backgroundColor: 'var(--hud-surface-container-highest)',
+                          color: 'var(--hud-on-surface)',
+                        }
+                  }
                 >
                   {score}
                 </button>
@@ -180,19 +244,29 @@ export default function CheckoutPracticePage() {
 
           {/* Low scores */}
           <div>
-            <span className="text-xs text-theme-muted">
-              {t("training.checkout.low")}
+            <span
+              className="text-xs"
+              style={{ color: 'var(--hud-on-tertiary-container)' }}
+            >
+              Low (59–2)
             </span>
             <div className="flex flex-wrap gap-2 mt-1">
               {lowScores.map((score) => (
                 <button
                   key={score}
                   onClick={() => handleChangeScore(score)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                  className="px-3 py-1.5 rounded-lg text-sm font-bold transition-all"
+                  style={
                     startingScore === score
-                      ? "bg-teal-700 text-white"
-                      : "bg-theme-secondary text-theme-primary hover:bg-theme-tertiary"
-                  }`}
+                      ? {
+                          backgroundColor: 'var(--hud-primary)',
+                          color: 'var(--hud-on-primary)',
+                        }
+                      : {
+                          backgroundColor: 'var(--hud-surface-container-highest)',
+                          color: 'var(--hud-on-surface)',
+                        }
+                  }
                 >
                   {score}
                 </button>
@@ -203,26 +277,48 @@ export default function CheckoutPracticePage() {
       )}
 
       {/* Current checkout display */}
-      <div className="bg-teal-700 text-white rounded-2xl p-6 text-center shadow-2xl">
-        <div className="text-sm uppercase tracking-wider mb-1 text-teal-200">
-          {t("training.checkout.remaining")}
+      <div
+        className="rounded-2xl p-6 text-center shadow-2xl"
+        style={{
+          background: 'linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%)',
+        }}
+      >
+        <div
+          className="text-sm uppercase tracking-wider mb-1"
+          style={{ color: 'var(--hud-on-primary)', opacity: 0.8 }}
+        >
+          Remaining
         </div>
-        <div className="text-8xl font-black mb-2">{gameState.currentScore}</div>
+        <div
+          className="text-8xl font-black mb-2"
+          style={{ color: 'var(--hud-on-primary)' }}
+        >
+          {gameState.currentScore}
+        </div>
         {gameState.suggestion && (
-          <div className="text-lg text-teal-100">
-            <span className="text-teal-300 text-sm">
-              {t("training.checkout.suggestion")}:{" "}
+          <div className="text-lg">
+            <span
+              className="text-sm"
+              style={{ color: 'var(--hud-on-primary)', opacity: 0.6 }}
+            >
+              Suggestion:{" "}
             </span>
-            <span className="font-bold">{gameState.suggestion}</span>
+            <span
+              className="font-bold"
+              style={{ color: 'var(--hud-on-primary)' }}
+            >
+              {gameState.suggestion}
+            </span>
           </div>
         )}
-        <div className="text-sm text-teal-300 mt-2">
-          {t("training.checkout.dartsThrown", {
-            count: gameState.currentDarts.length,
-          })}
+        <div
+          className="text-sm mt-2"
+          style={{ color: 'var(--hud-on-primary)', opacity: 0.7 }}
+        >
+          {gameState.currentDarts.length === 1 ? "1 dart thrown" : `${gameState.currentDarts.length} darts thrown`}
           {doubleOut && (
             <span className="ml-2">
-              ({t("zeroOne.options.doubleOut.title")})
+              (Double Out)
             </span>
           )}
         </div>
@@ -230,18 +326,31 @@ export default function CheckoutPracticePage() {
 
       {/* Current darts in this attempt */}
       {gameState.currentDarts.length > 0 && (
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-          <h3 className="text-sm font-bold text-theme-muted mb-2 uppercase">
-            {t("training.checkout.currentAttempt")}
+        <div
+          className="rounded-xl p-4"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <h3
+            className="text-sm font-bold mb-2 uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Current Attempt
           </h3>
           <div className="flex gap-2">
             {gameState.currentDarts.map((hit, i) => (
               <div
                 key={i}
-                className="px-4 py-2 rounded-lg font-bold bg-theme-secondary text-theme-primary"
+                className="px-4 py-2 rounded-lg font-bold"
+                style={{
+                  backgroundColor: 'var(--hud-surface-container-highest)',
+                  color: 'var(--hud-on-surface)',
+                }}
               >
                 {hit.segment.ShortName}{" "}
-                <span className="text-xs opacity-70">({hit.value})</span>
+                <span className="text-xs" style={{ opacity: 0.7 }}>({hit.value})</span>
               </div>
             ))}
           </div>
@@ -250,45 +359,103 @@ export default function CheckoutPracticePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-          <div className="text-3xl font-bold text-green-500">
+        <div
+          className="rounded-xl p-4 text-center"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <div
+            className="text-3xl font-bold"
+            style={{ color: 'var(--hud-secondary)' }}
+          >
             {stats.successRate}%
           </div>
-          <div className="text-xs text-theme-muted uppercase">
-            {t("training.checkout.successRate")}
+          <div
+            className="text-xs uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Success Rate
           </div>
         </div>
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-          <div className="text-3xl font-bold text-teal-500">
+        <div
+          className="rounded-xl p-4 text-center"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <div
+            className="text-3xl font-bold"
+            style={{ color: 'var(--hud-primary)' }}
+          >
             {stats.successfulCheckouts}
           </div>
-          <div className="text-xs text-theme-muted uppercase">
-            {t("training.checkout.checkouts")}
+          <div
+            className="text-xs uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Checkouts
           </div>
         </div>
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-          <div className="text-3xl font-bold text-accent">
+        <div
+          className="rounded-xl p-4 text-center"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <div
+            className="text-3xl font-bold"
+            style={{ color: 'var(--hud-game-training)' }}
+          >
             {stats.totalAttempts}
           </div>
-          <div className="text-xs text-theme-muted uppercase">
-            {t("training.checkout.attempts")}
+          <div
+            className="text-xs uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Attempts
           </div>
         </div>
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-          <div className="text-3xl font-bold text-purple-500">
+        <div
+          className="rounded-xl p-4 text-center"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <div
+            className="text-3xl font-bold"
+            style={{ color: 'var(--hud-secondary)' }}
+          >
             {stats.avgDartsOnSuccess || "-"}
           </div>
-          <div className="text-xs text-theme-muted uppercase">
-            {t("training.checkout.avgDarts")}
+          <div
+            className="text-xs uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Avg Darts
           </div>
         </div>
       </div>
 
       {/* Recent attempts */}
       {gameState.attempts.length > 0 && (
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card flex-1">
-          <h3 className="text-lg font-bold text-theme-primary mb-3">
-            {t("training.checkout.recentAttempts")}
+        <div
+          className="rounded-xl p-4 flex-1"
+          style={{
+            backgroundColor: 'var(--hud-glass-bg)',
+            backdropFilter: 'blur(var(--hud-glass-blur))',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <h3
+            className="text-lg font-bold mb-3"
+            style={{ color: 'var(--hud-on-surface)' }}
+          >
+            Recent Attempts
           </h3>
           <div className="space-y-2">
             {[...gameState.attempts]
@@ -297,34 +464,45 @@ export default function CheckoutPracticePage() {
               .map((attempt, i) => (
                 <div
                   key={i}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
-                    attempt.success
-                      ? "bg-green-100 dark:bg-green-900/30"
-                      : "bg-red-100 dark:bg-red-900/30"
-                  }`}
+                  className="flex items-center justify-between p-3 rounded-lg"
+                  style={{
+                    backgroundColor: attempt.success
+                      ? 'rgba(68, 226, 205, 0.1)'
+                      : 'rgba(255, 180, 171, 0.1)',
+                  }}
                 >
                   <div className="flex gap-1">
                     {attempt.darts.map((d, j) => (
                       <span
                         key={j}
-                        className={`px-2 py-1 rounded text-xs font-bold ${
+                        className="px-2 py-1 rounded text-xs font-bold"
+                        style={
                           attempt.success
-                            ? "bg-green-200 dark:bg-green-800/40 text-green-700"
-                            : "bg-red-200 dark:bg-red-800/40 text-red-700"
-                        }`}
+                            ? {
+                                backgroundColor: 'rgba(68, 226, 205, 0.2)',
+                                color: 'var(--hud-secondary)',
+                              }
+                            : {
+                                backgroundColor: 'rgba(147, 0, 10, 0.4)',
+                                color: 'var(--hud-error)',
+                              }
+                        }
                       >
                         {d.segment.ShortName}
                       </span>
                     ))}
                   </div>
                   <span
-                    className={`font-bold text-sm ${
-                      attempt.success ? "text-green-600" : "text-red-600"
-                    }`}
+                    className="font-bold text-sm"
+                    style={{
+                      color: attempt.success
+                        ? 'var(--hud-secondary)'
+                        : 'var(--hud-error)',
+                    }}
                   >
                     {attempt.success
-                      ? t("training.checkout.success")
-                      : t("training.checkout.bust")}
+                      ? "Success"
+                      : "Bust"}
                   </span>
                 </div>
               ))}

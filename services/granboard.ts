@@ -285,78 +285,16 @@ export class Granboard {
 
   /**
    * Light up specific segments on the Granboard 3s
-   * Granboard 3s uses a different protocol - we need to disable LED control for now
    * @param segments Array of segment numbers to light up (e.g., [15, 16, 17, 18, 19, 20, 25] for Cricket)
    */
-  public async setLEDs(segments: number[]): Promise<void> {
-    if (!this.writeCharacteristic) {
-      console.warn("❌ LED control not available - no write characteristic found");
-      return;
-    }
-
-    // TEMPORARILY DISABLED: The Granboard 3s protocol for LED control is different
-    // The current implementation causes incorrect LED behavior
-    // TODO: Research correct Granboard 3s LED protocol
-
-    console.log("⚠️ LED control temporarily disabled for Granboard 3s");
-    console.log("Target segments:", segments);
-    return;
-
-    /* ORIGINAL CODE - DISABLED
-    try {
-      console.log("🔦 Attempting to set LEDs for segments:", segments);
-
-      // Create a 32-bit bitmap for segments 1-25
-      let bitmap = 0;
-      segments.forEach(segmentNum => {
-        if (segmentNum >= 1 && segmentNum <= 25) {
-          bitmap |= (1 << (segmentNum - 1));
-        }
-      });
-
-      // Convert bitmap to bytes (little endian, 4 bytes)
-      const command = new Uint8Array([
-        0x50, // Command byte 'P' for Pattern/LED control
-        (bitmap >> 0) & 0xFF,
-        (bitmap >> 8) & 0xFF,
-        (bitmap >> 16) & 0xFF,
-        (bitmap >> 24) & 0xFF
-      ]);
-
-      console.log("📤 Sending LED command:", Array.from(command).map(b => `0x${b.toString(16).padStart(2, '0')}`).join(' '));
-
-      await this.writeCharacteristic.writeValue(command);
-      console.log("✅ LED command sent successfully");
-    } catch (error) {
-      console.error("❌ Failed to set LEDs:", error);
-    }
-    */
+  public async setLEDs(_segments: number[]): Promise<void> {
+    // TODO: implement Granboard 3s LED protocol
   }
 
   /**
    * Turn off all LEDs
    */
   public async clearLEDs(): Promise<void> {
-    if (!this.writeCharacteristic) {
-      return;
-    }
-
-    // TEMPORARILY DISABLED: Same as setLEDs
-    console.log("⚠️ LED clear temporarily disabled for Granboard 3s");
-    return;
-
-    /* ORIGINAL CODE - DISABLED
-    try {
-      console.log("🔦 Clearing all LEDs");
-
-      // Command to clear all LEDs - send bitmap of 0
-      const command = new Uint8Array([0x50, 0x00, 0x00, 0x00, 0x00]);
-
-      await this.writeCharacteristic.writeValue(command);
-      console.log("✅ LEDs cleared");
-    } catch (error) {
-      console.error("❌ Failed to clear LEDs:", error);
-    }
-    */
+    // TODO: implement Granboard 3s LED protocol
   }
 }

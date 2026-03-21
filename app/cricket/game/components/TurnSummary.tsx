@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { Segment } from "@/services/boardinfo";
 import { PlayerCricketState } from "@/services/cricket";
 import { useEffect, useState } from "react";
@@ -16,7 +15,6 @@ export function TurnSummary({
   hits,
   onComplete,
 }: TurnSummaryProps) {
-  const t = useTranslations();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -40,13 +38,19 @@ export function TurnSummary({
 
       {/* Summary card */}
       <div className="relative animate-slide-up">
-        <div className="bg-theme-card text-theme-primary rounded-3xl shadow-2xl p-10 border-4 border-accent min-w-[500px]">
+        <div
+          className="rounded-3xl shadow-2xl p-10 border min-w-[500px]"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-low)',
+            borderColor: 'rgba(255, 185, 95, 0.3)',
+          }}
+        >
           {/* Player name */}
           <div className="text-center mb-6">
-            <h2 className="text-4xl font-bold text-accent mb-2">
+            <h2 className="text-4xl font-headline font-extrabold mb-2" style={{ color: 'var(--hud-primary)' }}>
               {currentPlayer.player.name}
             </h2>
-            <div className="text-xl text-theme-tertiary">{t('cricket.game.turnCompleted')}</div>
+            <div className="text-xl" style={{ color: 'var(--hud-tertiary)' }}>{"Turn completed"}</div>
           </div>
 
           {/* Hits */}
@@ -54,12 +58,14 @@ export function TurnSummary({
             {hits.map((hit, index) => (
               <div
                 key={index}
-                className="bg-theme-interactive rounded-xl p-6 min-w-[120px] text-center transform hover:scale-110 transition-transform border border-theme-card"
+                className="rounded-xl p-6 min-w-[120px] text-center transform hover:scale-110 transition-transform border"
                 style={{
+                  backgroundColor: 'var(--hud-surface-container-high)',
+                  borderColor: 'rgba(69, 70, 77, 0.15)',
                   animation: `slideIn 0.3s ease-out ${index * 0.1}s both`,
                 }}
               >
-                <div className="text-5xl font-black text-accent">
+                <div className="text-5xl font-headline font-extrabold" style={{ color: 'var(--hud-primary)' }}>
                   {hit.ShortName}
                 </div>
               </div>
@@ -68,16 +74,23 @@ export function TurnSummary({
             {Array.from({ length: 3 - hits.length }).map((_, index) => (
               <div
                 key={`empty-${index}`}
-                className="bg-theme-secondary rounded-xl p-6 min-w-[120px] text-center border-2 border-dashed border-theme-card"
+                className="rounded-xl p-6 min-w-[120px] text-center border-2 border-dashed"
+                style={{
+                  backgroundColor: 'var(--hud-surface-container)',
+                  borderColor: 'var(--hud-surface-container-highest)',
+                }}
               >
-                <div className="text-5xl font-black text-theme-tertiary">-</div>
+                <div className="text-5xl font-headline font-extrabold" style={{ color: 'var(--hud-on-tertiary-container)' }}>-</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Glow effect */}
-        <div className="absolute inset-0 bg-accent rounded-3xl blur-3xl opacity-30 animate-pulse" />
+        <div
+          className="absolute inset-0 rounded-3xl blur-3xl opacity-30 animate-pulse"
+          style={{ backgroundColor: 'var(--hud-primary)' }}
+        />
       </div>
 
       {/* Custom animations */}

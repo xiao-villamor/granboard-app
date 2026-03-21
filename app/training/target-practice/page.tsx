@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Segment } from "@/services/boardinfo";
 import {
   TargetPracticeState,
@@ -23,7 +22,6 @@ import {
 
 export default function TargetPracticePage() {
   const router = useRouter();
-  const t = useTranslations();
   const { openDialog } = useSettings();
   const [totalTargets, setTotalTargets] = useState(10);
   const [gameState, setGameState] = useState<TargetPracticeState>(
@@ -50,53 +48,83 @@ export default function TargetPracticePage() {
   };
 
   return (
-    <main className="min-h-screen bg-theme-primary flex flex-col p-4 gap-4">
+    <main
+      className="min-h-screen flex flex-col p-4 gap-4"
+      style={{ backgroundColor: 'var(--hud-background)' }}
+    >
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <button
             data-testid="back-button"
             onClick={() => router.push("/training")}
-            className="px-3 py-2 bg-theme-interactive text-theme-interactive bg-theme-interactive-hover rounded-lg transition-all flex items-center gap-2"
+            className="px-3 py-2 rounded-lg transition-all flex items-center gap-2"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              color: 'var(--hud-on-surface)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
           >
-            <FontAwesomeIcon icon={faArrowLeft} /> {t("common.back")}
+            <FontAwesomeIcon icon={faArrowLeft} /> Back
           </button>
-          <h1 className="text-2xl font-bold text-theme-primary tracking-wider">
-            {t("training.targetPractice.title")}
+          <h1
+            className="text-2xl font-bold tracking-wider"
+            style={{ color: 'var(--hud-on-surface)' }}
+          >
+            Target Practice
           </h1>
         </div>
         <div className="flex gap-3">
           <button
             onClick={handleReset}
-            className="px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-600 transition-all text-sm font-medium flex items-center gap-2"
+            className="px-4 py-2 rounded-lg hover:opacity-90 transition-all text-sm font-medium flex items-center gap-2"
+            style={{
+              backgroundColor: 'var(--hud-secondary)',
+              color: '#1a1a2e',
+            }}
           >
             <FontAwesomeIcon icon={faRotateRight} />{" "}
-            {t("training.reset")}
+            Reset
           </button>
           <button
             data-testid="settings-button"
             onClick={() => openDialog()}
-            className="px-4 py-2 bg-theme-interactive text-theme-interactive bg-theme-interactive-hover rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              color: 'var(--hud-on-surface)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
           >
-            <FontAwesomeIcon icon={faGear} /> {t("cricket.game.settings")}
+            <FontAwesomeIcon icon={faGear} /> Settings
           </button>
           {connectionState === "connected" ? (
-            <div className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium text-sm flex items-center gap-2">
+            <div
+              className="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
+              style={{
+                backgroundColor: 'var(--hud-secondary)',
+                color: '#1a1a2e',
+              }}
+            >
               <FontAwesomeIcon icon={faCheck} />{" "}
-              {t("cricket.game.connected")}
+              Connected
             </div>
           ) : (
             <button
               data-testid="connect-button"
               onClick={connectToBoard}
               disabled={connectionState === "connecting"}
-              className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 text-sm font-medium disabled:bg-theme-interactive transition-all"
+              className="px-4 py-2 rounded-lg hover:opacity-90 text-sm font-medium disabled:opacity-50 transition-all"
+              style={{
+                background: 'linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%)',
+                color: '#1a1a2e',
+              }}
             >
               {connectionState === "connecting"
-                ? t("cricket.game.connecting")
+                ? "Connecting…"
                 : connectionState === "error"
-                ? t("cricket.game.errorRetry")
-                : t("cricket.game.connectGranboard")}
+                ? "Reconnect"
+                : "Connect"}
             </button>
           )}
         </div>
@@ -104,20 +132,36 @@ export default function TargetPracticePage() {
 
       {/* Target count selector (only if session not started or finished) */}
       {gameState.totalDarts === 0 && (
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-          <h3 className="text-sm font-bold text-theme-muted mb-2 uppercase">
-            {t("training.targetPractice.numberOfTargets")}
+        <div
+          className="rounded-xl p-4"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <h3
+            className="text-sm font-bold mb-2 uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Number of Targets
           </h3>
           <div className="flex gap-3">
             {[5, 10, 15, 20].map((count) => (
               <button
                 key={count}
                 onClick={() => handleChangeTargets(count)}
-                className={`px-4 py-2 rounded-lg font-bold transition-all ${
+                className="px-4 py-2 rounded-lg font-bold transition-all"
+                style={
                   totalTargets === count
-                    ? "bg-purple-700 text-white"
-                    : "bg-theme-secondary text-theme-primary hover:bg-theme-tertiary"
-                }`}
+                    ? {
+                        backgroundColor: 'var(--hud-secondary)',
+                        color: '#1a1a2e',
+                      }
+                    : {
+                        backgroundColor: 'var(--hud-surface-container-highest)',
+                        color: 'var(--hud-on-surface)',
+                      }
+                }
               >
                 {count}
               </button>
@@ -128,64 +172,78 @@ export default function TargetPracticePage() {
 
       {/* Current target display */}
       {!gameState.sessionFinished && (
-        <div className="bg-purple-700 text-white rounded-2xl p-8 text-center shadow-2xl">
-          <div className="text-sm uppercase tracking-wider mb-2 text-purple-200">
-            {t("training.targetPractice.aimFor")}
+        <div
+          className="rounded-2xl p-8 text-center shadow-2xl"
+          style={{
+            background: 'linear-gradient(135deg, var(--hud-secondary) 0%, #2a9d8f 100%)',
+            color: '#1a1a2e',
+          }}
+        >
+          <div
+            className="text-sm uppercase tracking-wider mb-2"
+            style={{ color: 'rgba(26, 26, 46, 0.8)' }}
+          >
+            Aim for
           </div>
-          <div className="text-8xl font-black mb-2">
+          <div className="text-8xl font-black mb-2" style={{ color: '#1a1a2e' }}>
             {getTargetDisplayName(gameState.currentTarget)}
           </div>
-          <div className="text-lg text-purple-200">
-            {t("training.targetPractice.dartsRemaining", {
-              count: 3 - gameState.currentRoundDarts.length,
-            })}
+          <div className="text-lg" style={{ color: 'rgba(26, 26, 46, 0.7)' }}>
+            {(() => { const count = 3 - gameState.currentRoundDarts.length; return count === 1 ? "1 dart remaining" : `${count} darts remaining`; })()}
           </div>
-          <div className="text-sm text-purple-300 mt-2">
-            {t("training.targetPractice.progress", {
-              current: gameState.targetsCompleted + 1,
-              total: gameState.targetsTotal,
-            })}
+          <div className="text-sm mt-2" style={{ color: 'rgba(26, 26, 46, 0.7)' }}>
+            {`${gameState.targetsCompleted + 1} / ${gameState.targetsTotal}`}
           </div>
         </div>
       )}
 
       {/* Session finished banner */}
       {gameState.sessionFinished && (
-        <div className="bg-yellow-600 text-white rounded-2xl p-8 text-center shadow-2xl">
-          <h2 className="text-4xl font-bold mb-4">
-            {t("training.targetPractice.sessionComplete")}
+        <div
+          className="rounded-2xl p-8 text-center shadow-2xl"
+          style={{
+            background: 'linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%)',
+            color: '#1a1a2e',
+          }}
+        >
+          <h2 className="text-4xl font-bold mb-4" style={{ color: '#1a1a2e' }}>
+            Session Complete
           </h2>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <div className="text-3xl font-bold">{stats.accuracy}%</div>
-              <div className="text-sm text-yellow-200">
-                {t("training.targetPractice.accuracy")}
+              <div className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{stats.accuracy}%</div>
+              <div className="text-sm" style={{ color: 'rgba(26, 26, 46, 0.7)' }}>
+                Accuracy
               </div>
             </div>
             <div>
-              <div className="text-3xl font-bold">{stats.perfectRate}%</div>
-              <div className="text-sm text-yellow-200">
-                {t("training.targetPractice.perfectRate")}
+              <div className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{stats.perfectRate}%</div>
+              <div className="text-sm" style={{ color: 'rgba(26, 26, 46, 0.7)' }}>
+                Perfect Rate
               </div>
             </div>
             <div>
-              <div className="text-3xl font-bold">{stats.correctHits}</div>
-              <div className="text-sm text-yellow-200">
-                {t("training.targetPractice.correctHits")}
+              <div className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{stats.correctHits}</div>
+              <div className="text-sm" style={{ color: 'rgba(26, 26, 46, 0.7)' }}>
+                Correct Hits
               </div>
             </div>
             <div>
-              <div className="text-3xl font-bold">{stats.totalDarts}</div>
-              <div className="text-sm text-yellow-200">
-                {t("training.freeThrow.darts")}
+              <div className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{stats.totalDarts}</div>
+              <div className="text-sm" style={{ color: 'rgba(26, 26, 46, 0.7)' }}>
+                Darts
               </div>
             </div>
           </div>
           <button
             onClick={handleReset}
-            className="px-8 py-3 bg-white text-yellow-700 rounded-xl hover:bg-theme-secondary font-bold text-lg transition-all"
+            className="px-8 py-3 rounded-xl font-bold text-lg transition-all hover:opacity-90"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              color: 'var(--hud-on-surface)',
+            }}
           >
-            {t("training.playAgain")}
+            Play Again
           </button>
         </div>
       )}
@@ -193,36 +251,60 @@ export default function TargetPracticePage() {
       {/* Stats */}
       {!gameState.sessionFinished && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-            <div className="text-3xl font-bold text-green-500">
+          <div
+            className="rounded-xl p-4 text-center"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
+            <div className="text-3xl font-bold" style={{ color: 'var(--hud-secondary)' }}>
               {stats.accuracy}%
             </div>
-            <div className="text-xs text-theme-muted uppercase">
-              {t("training.targetPractice.accuracy")}
+            <div className="text-xs uppercase" style={{ color: 'var(--hud-on-tertiary-container)' }}>
+              Accuracy
             </div>
           </div>
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-            <div className="text-3xl font-bold text-purple-500">
+          <div
+            className="rounded-xl p-4 text-center"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
+            <div className="text-3xl font-bold" style={{ color: 'var(--hud-secondary)' }}>
               {stats.perfectRate}%
             </div>
-            <div className="text-xs text-theme-muted uppercase">
-              {t("training.targetPractice.perfectRate")}
+            <div className="text-xs uppercase" style={{ color: 'var(--hud-on-tertiary-container)' }}>
+              Perfect Rate
             </div>
           </div>
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-            <div className="text-3xl font-bold text-accent">
+          <div
+            className="rounded-xl p-4 text-center"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
+            <div className="text-3xl font-bold" style={{ color: 'var(--hud-primary)' }}>
               {stats.correctHits}/{stats.totalDarts}
             </div>
-            <div className="text-xs text-theme-muted uppercase">
-              {t("training.targetPractice.correctHits")}
+            <div className="text-xs uppercase" style={{ color: 'var(--hud-on-tertiary-container)' }}>
+              Correct Hits
             </div>
           </div>
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card text-center">
-            <div className="text-3xl font-bold text-orange-500">
+          <div
+            className="rounded-xl p-4 text-center"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
+            <div className="text-3xl font-bold" style={{ color: 'var(--hud-game-training)' }}>
               {stats.targetsCompleted}/{gameState.targetsTotal}
             </div>
-            <div className="text-xs text-theme-muted uppercase">
-              {t("training.targetPractice.targets")}
+            <div className="text-xs uppercase" style={{ color: 'var(--hud-on-tertiary-container)' }}>
+              Targets
             </div>
           </div>
         </div>
@@ -230,9 +312,18 @@ export default function TargetPracticePage() {
 
       {/* Current round darts */}
       {!gameState.sessionFinished && gameState.currentRoundDarts.length > 0 && (
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-          <h3 className="text-sm font-bold text-theme-muted mb-2 uppercase">
-            {t("training.targetPractice.currentDarts")}
+        <div
+          className="rounded-xl p-4"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <h3
+            className="text-sm font-bold mb-2 uppercase"
+            style={{ color: 'var(--hud-on-tertiary-container)' }}
+          >
+            Current Darts
           </h3>
           <div className="flex gap-2">
             {gameState.currentRoundDarts.map((hit, i) => {
@@ -241,11 +332,18 @@ export default function TargetPracticePage() {
               return (
                 <div
                   key={i}
-                  className={`px-4 py-2 rounded-lg font-bold ${
+                  className="px-4 py-2 rounded-lg font-bold"
+                  style={
                     isCorrect
-                      ? "bg-green-100 dark:bg-green-900/40 text-green-600"
-                      : "bg-red-100 dark:bg-red-900/40 text-red-600"
-                  }`}
+                      ? {
+                          backgroundColor: 'rgba(68, 226, 205, 0.15)',
+                          color: 'var(--hud-secondary)',
+                        }
+                      : {
+                          backgroundColor: 'rgba(147, 0, 10, 0.4)',
+                          color: 'var(--hud-error)',
+                        }
+                  }
                 >
                   {hit.segment.ShortName}
                 </div>
@@ -257,18 +355,32 @@ export default function TargetPracticePage() {
 
       {/* Target history */}
       {gameState.targetHistory.length > 0 && (
-        <div className="bg-theme-card rounded-xl p-4 border border-theme-card flex-1">
-          <h3 className="text-lg font-bold text-theme-primary mb-3">
-            {t("training.targetPractice.history")}
+        <div
+          className="rounded-xl p-4 flex-1"
+          style={{
+            backgroundColor: 'var(--hud-glass-bg)',
+            backdropFilter: 'blur(var(--hud-glass-blur))',
+            outline: '1px solid rgba(69, 70, 77, 0.12)',
+          }}
+        >
+          <h3
+            className="text-lg font-bold mb-3"
+            style={{ color: 'var(--hud-on-surface)' }}
+          >
+            History
           </h3>
           <div className="space-y-2">
             {[...gameState.targetHistory].reverse().map((entry, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-3 bg-theme-secondary rounded-lg"
+                className="flex items-center justify-between p-3 rounded-lg"
+                style={{ backgroundColor: 'var(--hud-surface-container-low)' }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-purple-500 w-12 text-center">
+                  <span
+                    className="font-bold w-12 text-center"
+                    style={{ color: 'var(--hud-secondary)' }}
+                  >
                     {getTargetDisplayName(entry.target)}
                   </span>
                   <div className="flex gap-1">
@@ -278,11 +390,18 @@ export default function TargetPracticePage() {
                       return (
                         <span
                           key={j}
-                          className={`px-2 py-1 rounded text-xs font-bold ${
+                          className="px-2 py-1 rounded text-xs font-bold"
+                          style={
                             isCorrect
-                              ? "bg-green-100 dark:bg-green-900/40 text-green-600"
-                              : "bg-red-100 dark:bg-red-900/40 text-red-600"
-                          }`}
+                              ? {
+                                  backgroundColor: 'rgba(68, 226, 205, 0.15)',
+                                  color: 'var(--hud-secondary)',
+                                }
+                              : {
+                                  backgroundColor: 'rgba(147, 0, 10, 0.4)',
+                                  color: 'var(--hud-error)',
+                                }
+                          }
                         >
                           {d.segment.ShortName}
                         </span>
@@ -290,7 +409,7 @@ export default function TargetPracticePage() {
                     })}
                   </div>
                 </div>
-                <span className="font-bold text-theme-primary">
+                <span className="font-bold" style={{ color: 'var(--hud-on-surface)' }}>
                   {entry.correctHits}/3
                 </span>
               </div>

@@ -1,14 +1,11 @@
 "use client";
 
 import { useSettings, Theme } from "@/app/contexts/SettingsContext";
-import { LanguageSelector } from "./LanguageSelector";
-import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faVolumeHigh, faVolumeMute, faGlobe, faMoon, faSun, faDesktop } from "@fortawesome/free-solid-svg-icons";
+import { faXmark, faVolumeHigh, faVolumeMute, faMoon, faSun, faDesktop } from "@fortawesome/free-solid-svg-icons";
 
 export function GlobalSettingsDialog() {
   const { isDialogOpen, closeDialog, volume, soundEnabled, setVolume, toggleSound, theme, setTheme, customContent } = useSettings();
-  const t = useTranslations();
 
   if (!isDialogOpen) return null;
 
@@ -19,14 +16,31 @@ export function GlobalSettingsDialog() {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div data-testid="settings-dialog" className="bg-theme-elevated rounded-2xl border-2 border-theme-primary max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col">
+      <div
+        data-testid="settings-dialog"
+        className="rounded-2xl max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col"
+        style={{
+          backgroundColor: 'var(--hud-glass-bg)',
+          backdropFilter: 'blur(var(--hud-glass-blur))',
+          outline: '1px solid rgba(69, 70, 77, 0.12)',
+        }}
+      >
         {/* Header */}
-        <div className="flex-shrink-0 flex justify-between items-center p-6 pb-4 border-b border-theme-primary">
-          <h3 className="font-bold text-theme-primary text-2xl">{t('settings.title')}</h3>
+        <div
+          className="flex-shrink-0 flex justify-between items-center p-6 pb-4"
+          style={{ borderBottom: '1px solid rgba(69, 70, 77, 0.12)' }}
+        >
+          <h3 className="font-bold text-2xl" style={{ color: 'var(--hud-on-surface)' }}>Settings</h3>
           <button
             data-testid="settings-close-button"
             onClick={closeDialog}
-            className="text-theme-tertiary hover:text-theme-primary text-2xl font-bold px-3 py-1 bg-theme-interactive-hover rounded-lg transition-colors"
+            className="text-2xl font-bold px-3 py-1 rounded-lg transition-colors hover:opacity-80"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              color: 'var(--hud-tertiary)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--hud-on-surface)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--hud-tertiary)'; }}
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
@@ -36,32 +50,45 @@ export function GlobalSettingsDialog() {
           {/* Global Settings - Always visible */}
 
           {/* Sound Control */}
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
+          <div
+            className="rounded-xl p-4"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
             <div className="flex items-center justify-between">
-              <label className="text-theme-primary font-bold text-base flex items-center gap-2">
-                <FontAwesomeIcon icon={soundEnabled ? faVolumeHigh : faVolumeMute} /> {t('settings.sound.label')}
+              <label className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--hud-on-surface)' }}>
+                <FontAwesomeIcon icon={soundEnabled ? faVolumeHigh : faVolumeMute} /> Sound
               </label>
               <button
                 data-testid="sound-toggle-button"
                 onClick={toggleSound}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                style={
                   soundEnabled
-                    ? "bg-green-600 text-white hover:bg-green-500"
-                    : "bg-theme-interactive text-theme-interactive bg-theme-interactive-hover"
-                }`}
+                    ? { backgroundColor: 'var(--hud-secondary)', color: '#1a1a1a' }
+                    : { backgroundColor: 'var(--hud-surface-container-highest)', color: 'var(--hud-on-surface)' }
+                }
               >
-                {t(soundEnabled ? 'settings.sound.enabled' : 'settings.sound.disabled')}
+                {soundEnabled ? "On" : "Off"}
               </button>
             </div>
           </div>
 
           {/* Volume Control */}
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
+          <div
+            className="rounded-xl p-4"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
             <div className="flex items-center justify-between mb-3">
-              <label className="text-theme-primary font-bold text-base flex items-center gap-2">
-                <FontAwesomeIcon icon={faVolumeHigh} /> {t('settings.volume.label')}
+              <label className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--hud-on-surface)' }}>
+                <FontAwesomeIcon icon={faVolumeHigh} /> Volume
               </label>
-              <span className="text-theme-primary font-bold text-sm">
+              <span className="font-bold text-sm" style={{ color: 'var(--hud-on-surface)' }}>
                 {Math.round(volume * 100)}%
               </span>
             </div>
@@ -74,16 +101,11 @@ export function GlobalSettingsDialog() {
               value={volume}
               onChange={handleVolumeChange}
               disabled={!soundEnabled}
-              className="w-full h-3 bg-slate-400 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer
+              className="w-full h-3 rounded-lg appearance-none cursor-pointer
                 disabled:opacity-50 disabled:cursor-not-allowed
                 [&::-webkit-slider-thumb]:appearance-none
                 [&::-webkit-slider-thumb]:w-6
                 [&::-webkit-slider-thumb]:h-6
-                [&::-webkit-slider-thumb]:bg-white
-                [&::-webkit-slider-thumb]:border-2
-                [&::-webkit-slider-thumb]:border-slate-700
-                dark:[&::-webkit-slider-thumb]:border-white
-                dark:[&::-webkit-slider-thumb]:bg-slate-800
                 [&::-webkit-slider-thumb]:rounded-full
                 [&::-webkit-slider-thumb]:cursor-pointer
                 [&::-webkit-slider-thumb]:hover:scale-110
@@ -91,91 +113,103 @@ export function GlobalSettingsDialog() {
                 [&::-webkit-slider-thumb]:transition-transform
                 [&::-moz-range-thumb]:w-6
                 [&::-moz-range-thumb]:h-6
-                [&::-moz-range-thumb]:bg-white
-                [&::-moz-range-thumb]:border-2
-                [&::-moz-range-thumb]:border-slate-700
-                dark:[&::-moz-range-thumb]:border-white
-                dark:[&::-moz-range-thumb]:bg-slate-800
                 [&::-moz-range-thumb]:rounded-full
                 [&::-moz-range-thumb]:cursor-pointer
                 [&::-moz-range-thumb]:hover:scale-110
                 [&::-moz-range-thumb]:shadow-xl"
+              style={{
+                backgroundColor: 'var(--hud-surface-container-highest)',
+                // @ts-ignore -- CSS custom properties for pseudo-elements via inline won't work; using CSS vars as fallback
+              }}
             />
+            <style>{`
+              [data-testid="volume-slider"]::-webkit-slider-thumb {
+                background-color: var(--hud-primary);
+                border: 2px solid var(--hud-outline-variant);
+              }
+              [data-testid="volume-slider"]::-moz-range-thumb {
+                background-color: var(--hud-primary);
+                border: 2px solid var(--hud-outline-variant);
+              }
+            `}</style>
             {!soundEnabled && (
-              <p className="text-theme-muted text-xs mt-2 text-center">
-                {t('settings.volume.enableSoundFirst')}
+              <p className="text-xs mt-2 text-center" style={{ color: 'var(--hud-tertiary)' }}>
+                Enable sound to adjust volume
               </p>
             )}
           </div>
 
           {/* Theme Selector */}
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-            <label className="text-theme-primary font-bold text-base flex items-center gap-2 mb-3">
+          <div
+            className="rounded-xl p-4"
+            style={{
+              backgroundColor: 'var(--hud-surface-container-high)',
+              outline: '1px solid rgba(69, 70, 77, 0.12)',
+            }}
+          >
+            <label className="font-bold text-base flex items-center gap-2 mb-3" style={{ color: 'var(--hud-on-surface)' }}>
               <FontAwesomeIcon icon={theme === 'dark' ? faMoon : theme === 'light' ? faSun : faDesktop} />
-              {t('settings.theme.label')}
+              Theme
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => setTheme('light')}
-                className={`px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                className="px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
+                style={
                   theme === 'light'
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-theme-interactive text-theme-interactive bg-theme-interactive-hover'
-                }`}
+                    ? { backgroundColor: 'var(--hud-primary)', color: '#1a1a1a' }
+                    : { backgroundColor: 'var(--hud-surface-container-high)', color: 'var(--hud-on-surface)' }
+                }
               >
                 <FontAwesomeIcon icon={faSun} className="w-4 h-4" />
-                <span className="hidden sm:inline">{t('settings.theme.light')}</span>
+                <span className="hidden sm:inline">Light</span>
               </button>
               <button
                 onClick={() => setTheme('dark')}
-                className={`px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                className="px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
+                style={
                   theme === 'dark'
-                    ? 'bg-slate-600 text-white'
-                    : 'bg-theme-interactive text-theme-interactive bg-theme-interactive-hover'
-                }`}
+                    ? { backgroundColor: 'var(--hud-surface-container-highest)', color: 'var(--hud-on-surface)' }
+                    : { backgroundColor: 'var(--hud-surface-container-high)', color: 'var(--hud-on-surface)' }
+                }
               >
                 <FontAwesomeIcon icon={faMoon} className="w-4 h-4" />
-                <span className="hidden sm:inline">{t('settings.theme.dark')}</span>
+                <span className="hidden sm:inline">Dark</span>
               </button>
               <button
                 onClick={() => setTheme('system')}
-                className={`px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                className="px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
+                style={
                   theme === 'system'
-                    ? 'bg-accent text-white'
-                    : 'bg-theme-interactive text-theme-interactive bg-theme-interactive-hover'
-                }`}
+                    ? { backgroundColor: 'var(--hud-secondary)', color: '#1a1a1a' }
+                    : { backgroundColor: 'var(--hud-surface-container-high)', color: 'var(--hud-on-surface)' }
+                }
               >
                 <FontAwesomeIcon icon={faDesktop} className="w-4 h-4" />
-                <span className="hidden sm:inline">{t('settings.theme.system')}</span>
+                <span className="hidden sm:inline">System</span>
               </button>
-            </div>
-          </div>
-
-          {/* Language Selector */}
-          <div className="bg-theme-card rounded-xl p-4 border border-theme-card">
-            <div className="flex items-center justify-between">
-              <label className="text-theme-primary font-bold text-base flex items-center gap-2">
-                <FontAwesomeIcon icon={faGlobe} /> {t('settings.language.label')}
-              </label>
-              <LanguageSelector />
             </div>
           </div>
 
           {/* Custom Content - Variable content passed by the context */}
           {customContent && (
-            <div className="border-t border-theme-primary pt-4">
+            <div className="pt-4" style={{ borderTop: '1px solid rgba(69, 70, 77, 0.12)' }}>
               {customContent}
             </div>
           )}
         </div>
 
         {/* Close Button */}
-        <div className="flex-shrink-0 p-6 pt-4 border-t border-theme-primary">
+        <div className="flex-shrink-0 p-6 pt-4" style={{ borderTop: '1px solid rgba(69, 70, 77, 0.12)' }}>
           <button
             onClick={closeDialog}
-            className="w-full px-6 py-3 bg-accent text-white rounded-xl hover:opacity-90 font-bold transition-all shadow-lg"
+            className="w-full px-6 py-3 rounded-xl hover:opacity-90 font-bold transition-all shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%)',
+              color: 'var(--hud-on-primary)',
+            }}
           >
-            {t('settings.close')}
+            Done
           </button>
         </div>
       </div>

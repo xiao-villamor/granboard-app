@@ -16,7 +16,6 @@ export function useCricketGameState(
   );
   const [lastHit, setLastHit] = useState<Segment | null>(null);
   const [currentTurnHits, setCurrentTurnHits] = useState<Segment[]>([]);
-  const [animationKey, setAnimationKey] = useState<number>(0);
 
   const lastPlayerChangeRef = useRef<number>(0);
   const lastDartHitRef = useRef<number>(0);
@@ -101,7 +100,6 @@ export function useCricketGameState(
           onTurnHitsUpdate(prev);
           return [...prev, segment];
         });
-        setAnimationKey((prev) => prev + 1);
 
         // First call - process and cache the result
         processedResult = processDartHit(currentState, segment, hitId);
@@ -137,7 +135,6 @@ export function useCricketGameState(
     lastHit,
     currentTurnHits,
     setCurrentTurnHits,
-    animationKey,
     onSegmentHit,
     handleResetButton,
     restoreGameState,

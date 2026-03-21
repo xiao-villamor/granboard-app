@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { Player, PlayerState as PlayerCricketState, calculateMPR, CricketGameMode } from "@/services/cricket";
 import { PlayerState as PlayerZeroOneState, calculatePPD, calculateAverage, ZeroOneMode } from "@/services/zeroone";
 
@@ -31,8 +30,6 @@ export function GameOverBanner({
   onNewGame,
   onQuit,
 }: GameOverBannerProps) {
-  const t = useTranslations();
-
   const isCricket = isCricketMode(gameMode);
 
   // Sort players by ranking (winner first, then by score or MPR)
@@ -44,14 +41,11 @@ export function GameOverBanner({
       const aCricket = a as PlayerCricketState;
       const bCricket = b as PlayerCricketState;
       if (gameMode === CricketGameMode.CutThroat) {
-        // Cut Throat: Lower score is better
         return aCricket.totalPoints - bCricket.totalPoints;
       } else {
-        // Standard: Higher score is better
         return bCricket.totalPoints - aCricket.totalPoints;
       }
     } else {
-      // 01 mode: Lower remaining score is better
       const aZeroOne = a as PlayerZeroOneState;
       const bZeroOne = b as PlayerZeroOneState;
       return aZeroOne.currentScore - bZeroOne.currentScore;
@@ -59,39 +53,48 @@ export function GameOverBanner({
   });
 
   return (
-    <div className="bg-yellow-600 text-white p-8 rounded-2xl shadow-2xl border-2 border-yellow-400">
-      <h2 className="text-5xl font-bold mb-2 text-center">
-        🎉 {t('cricket.game.wonGame', { name: winner.name })} 🎉
+    <div
+      className="p-8 rounded-2xl shadow-2xl border animate-scale-in"
+      style={{
+        background: 'linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%)',
+        borderColor: 'rgba(255, 185, 95, 0.3)',
+      }}
+    >
+      <h2 className="text-5xl font-headline font-extrabold mb-2 text-center" style={{ color: 'var(--hud-on-primary)' }}>
+        {`${winner.name} wins!`}
       </h2>
-      <p className="text-xl text-center mb-6 text-yellow-100">
-        {t('cricket.game.gameEndedAfter', {
-          rounds: totalRounds,
-          roundsLabel: totalRounds > 1 ? t('cricket.game.rounds') : t('cricket.game.round').toLowerCase()
-        })}
+      <p className="text-xl text-center mb-6" style={{ color: 'rgba(71, 42, 0, 0.7)' }}>
+        {`Game ended after ${totalRounds} ${totalRounds > 1 ? "Rounds" : "round"}`}
       </p>
 
       {/* Statistics Table */}
-      <div className="bg-theme-card backdrop-blur-sm rounded-xl p-6 mb-6">
-        <h3 className="text-2xl font-bold text-theme-primary mb-4 text-center">
-          {isCricket ? t('cricket.game.gameStats') : t('zeroOne.game.gameStats')}
+      <div
+        className="rounded-xl p-6 mb-6 border"
+        style={{
+          backgroundColor: 'var(--hud-surface-container-low)',
+          borderColor: 'rgba(69, 70, 77, 0.15)',
+        }}
+      >
+        <h3 className="text-2xl font-headline font-bold mb-4 text-center" style={{ color: 'var(--hud-on-surface)' }}>
+          {"Game Stats"}
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b-2 border-theme-tertiary">
-                <th className="p-3 text-left font-bold text-theme-tertiary">{t('cricket.game.rank')}</th>
-                <th className="p-3 text-left font-bold text-theme-tertiary">{t('cricket.game.player')}</th>
+              <tr style={{ borderBottom: '2px solid var(--hud-surface-container-highest)' }}>
+                <th className="p-3 text-left font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"Rank"}</th>
+                <th className="p-3 text-left font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"Player"}</th>
                 {isCricket ? (
                   <>
-                    <th className="p-3 text-center font-bold text-theme-tertiary">{t('cricket.game.points')}</th>
-                    <th className="p-3 text-center font-bold text-theme-tertiary">{t('cricket.game.marks')}</th>
-                    <th className="p-3 text-center font-bold text-theme-tertiary">{t('cricket.game.mpr')}</th>
+                    <th className="p-3 text-center font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"Points"}</th>
+                    <th className="p-3 text-center font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"Marks"}</th>
+                    <th className="p-3 text-center font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"MPR"}</th>
                   </>
                 ) : (
                   <>
-                    <th className="p-3 text-center font-bold text-theme-tertiary">{t('zeroOne.game.remaining')}</th>
-                    <th className="p-3 text-center font-bold text-theme-tertiary">{t('zeroOne.game.average')}</th>
-                    <th className="p-3 text-center font-bold text-theme-tertiary">PPD</th>
+                    <th className="p-3 text-center font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"Remaining"}</th>
+                    <th className="p-3 text-center font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>{"Average"}</th>
+                    <th className="p-3 text-center font-label text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--hud-tertiary)' }}>PPD</th>
                   </>
                 )}
               </tr>
@@ -102,9 +105,10 @@ export function GameOverBanner({
                 return (
                   <tr
                     key={playerState.player.id}
-                    className={`border-b border-theme-tertiary ${
-                      isWinner ? "bg-yellow-500/20" : ""
-                    }`}
+                    style={{
+                      borderBottom: '1px solid var(--hud-surface-container-high)',
+                      backgroundColor: isWinner ? 'rgba(255, 185, 95, 0.08)' : 'transparent',
+                    }}
                   >
                     <td className="p-3 text-center">
                       {index === 0 ? (
@@ -114,44 +118,45 @@ export function GameOverBanner({
                       ) : index === 2 ? (
                         <span className="text-2xl">🥉</span>
                       ) : (
-                        <span className="text-theme-tertiary font-semibold">
+                        <span className="font-semibold" style={{ color: 'var(--hud-tertiary)' }}>
                           {index + 1}
                         </span>
                       )}
                     </td>
-                    <td className="p-3 font-bold text-theme-primary">
+                    <td className="p-3 font-bold" style={{ color: 'var(--hud-on-surface)' }}>
                       {playerState.player.name}
                       {isWinner && (
-                        <span className="ml-2 text-yellow-600">👑</span>
+                        <span className="ml-2">👑</span>
                       )}
                     </td>
                     {isCricket && isCricketPlayer(playerState) ? (
                       <>
                         <td
-                          className={`p-3 text-center font-bold ${
-                            gameMode === CricketGameMode.CutThroat
-                              ? "text-red-600"
-                              : "text-accent"
-                          }`}
+                          className="p-3 text-center font-bold"
+                          style={{
+                            color: gameMode === CricketGameMode.CutThroat
+                              ? 'var(--hud-error)'
+                              : 'var(--hud-primary)',
+                          }}
                         >
                           {playerState.totalPoints}
                         </td>
-                        <td className="p-3 text-center font-semibold text-theme-primary">
+                        <td className="p-3 text-center font-semibold" style={{ color: 'var(--hud-on-surface)' }}>
                           {playerState.totalMarks}
                         </td>
-                        <td className="p-3 text-center font-bold text-accent text-lg">
+                        <td className="p-3 text-center font-bold text-lg" style={{ color: 'var(--hud-secondary)' }}>
                           {calculateMPR(playerState).toFixed(2)}
                         </td>
                       </>
                     ) : !isCricket && !isCricketPlayer(playerState) ? (
                       <>
-                        <td className="p-3 text-center font-bold text-accent">
+                        <td className="p-3 text-center font-bold" style={{ color: 'var(--hud-primary)' }}>
                           {playerState.currentScore}
                         </td>
-                        <td className="p-3 text-center font-semibold text-theme-primary">
+                        <td className="p-3 text-center font-semibold" style={{ color: 'var(--hud-on-surface)' }}>
                           {calculateAverage(playerState).toFixed(2)}
                         </td>
-                        <td className="p-3 text-center font-bold text-accent text-lg">
+                        <td className="p-3 text-center font-bold text-lg" style={{ color: 'var(--hud-secondary)' }}>
                           {calculatePPD(playerState).toFixed(2)}
                         </td>
                       </>
@@ -168,15 +173,23 @@ export function GameOverBanner({
       <div className="flex gap-4 justify-center">
         <button
           onClick={onNewGame}
-          className="px-8 py-3 bg-white text-yellow-700 rounded-xl hover:bg-theme-secondary font-bold text-lg transition-all shadow-lg hover:scale-105"
+          className="px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-lg hover:scale-105"
+          style={{
+            backgroundColor: 'var(--hud-on-primary)',
+            color: 'var(--hud-primary)',
+          }}
         >
-          {t('cricket.game.newGame')}
+          {"New Game"}
         </button>
         <button
           onClick={onQuit}
-          className="px-8 py-3 bg-theme-secondary text-theme-primary rounded-xl hover:bg-theme-tertiary font-bold text-lg transition-all shadow-lg hover:scale-105"
+          className="px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-lg hover:scale-105"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-high)',
+            color: 'var(--hud-on-surface)',
+          }}
         >
-          {t('cricket.game.quit')}
+          {"Quit"}
         </button>
       </div>
     </div>

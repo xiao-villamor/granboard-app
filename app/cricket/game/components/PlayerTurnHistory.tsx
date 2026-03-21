@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { Player } from "@/services/cricket";
 import { PlayerTurn } from "../hooks/usePlayerTurnHistory";
 import { Segment } from "@/services/boardinfo";
@@ -11,22 +10,39 @@ interface PlayerTurnHistoryProps {
 }
 
 export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound }: PlayerTurnHistoryProps) {
-  const t = useTranslations();
-
   return (
-    <div className="bg-theme-card rounded-xl shadow-2xl border-2 border-theme-card h-full flex flex-col overflow-hidden">
-      <h3 className="text-lg font-bold text-theme-primary px-4 py-3 border-b-2 border-accent flex-shrink-0" data-testid="history-title">
-        {t('cricket.game.history')} - {player.name}
+    <div
+      className="rounded-xl shadow-2xl h-full flex flex-col overflow-hidden border"
+      style={{
+        backgroundColor: 'var(--hud-surface-container-low)',
+        borderColor: 'rgba(69, 70, 77, 0.10)',
+      }}
+    >
+      <h3
+        className="text-sm font-label font-semibold uppercase tracking-widest px-4 py-3 flex-shrink-0"
+        style={{
+          color: 'var(--hud-tertiary)',
+          borderBottom: '1px solid var(--hud-surface-container-high)',
+        }}
+        data-testid="history-title"
+      >
+        {"History"} — {player.name}
       </h3>
-      <div className="overflow-y-auto flex-1 p-4 space-y-2">
+      <div className="overflow-y-auto flex-1 p-3 space-y-2">
         {/* Current turn */}
-        <div className="bg-accent-bg rounded-lg p-2 border-2 border-accent">
+        <div
+          className="rounded-lg p-2.5 border"
+          style={{
+            backgroundColor: 'rgba(255, 185, 95, 0.08)',
+            borderColor: 'rgba(255, 185, 95, 0.25)',
+          }}
+        >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-bold text-accent" data-testid={`current-round-${currentRound}`}>
-              {t('cricket.game.round')} {currentRound} ({t('cricket.game.inProgress')})
+            <span className="text-xs font-bold" style={{ color: 'var(--hud-primary)' }} data-testid={`current-round-${currentRound}`}>
+              {"Round"} {currentRound} ({"In Progress"})
             </span>
-            <span className="text-xs text-accent">
-              {currentTurnHits.length} / 3 {t('cricket.game.darts')}
+            <span className="text-xs" style={{ color: 'var(--hud-primary)' }}>
+              {currentTurnHits.length} / 3 {"Darts"}
             </span>
           </div>
           <div className="flex gap-1.5">
@@ -35,14 +51,18 @@ export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound
                 {currentTurnHits.map((hit, hitIdx) => (
                   <div
                     key={hitIdx}
-                    className={`flex-1 bg-theme-interactive rounded px-2 py-1.5 text-center ${
-                      hitIdx === currentTurnHits.length - 1 ? "ring-2 ring-green-400" : ""
-                    }`}
+                    className="flex-1 rounded px-2 py-1.5 text-center"
+                    style={{
+                      backgroundColor: 'var(--hud-surface-container-high)',
+                      boxShadow: hitIdx === currentTurnHits.length - 1
+                        ? '0 0 0 2px var(--hud-secondary)'
+                        : 'none',
+                    }}
                   >
-                    <div className="text-sm font-bold text-theme-primary">
+                    <div className="text-sm font-bold" style={{ color: 'var(--hud-on-surface)' }}>
                       {hit.ShortName}
                     </div>
-                    <div className="text-xs text-theme-muted">
+                    <div className="text-xs" style={{ color: 'var(--hud-on-tertiary-container)' }}>
                       {hit.Value}
                     </div>
                   </div>
@@ -52,10 +72,11 @@ export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound
                   Array.from({ length: 3 - currentTurnHits.length }).map((_, i) => (
                     <div
                       key={`empty-${i}`}
-                      className="flex-1 bg-theme-secondary rounded px-2 py-1.5 text-center"
+                      className="flex-1 rounded px-2 py-1.5 text-center"
+                      style={{ backgroundColor: 'var(--hud-surface-container)' }}
                     >
-                      <div className="text-sm text-theme-tertiary">-</div>
-                      <div className="text-xs text-theme-tertiary">0</div>
+                      <div className="text-sm" style={{ color: 'var(--hud-on-tertiary-container)' }}>-</div>
+                      <div className="text-xs" style={{ color: 'var(--hud-on-tertiary-container)' }}>0</div>
                     </div>
                   ))}
               </>
@@ -64,10 +85,11 @@ export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={`empty-${i}`}
-                  className="flex-1 bg-theme-secondary rounded px-2 py-1.5 text-center"
+                  className="flex-1 rounded px-2 py-1.5 text-center"
+                  style={{ backgroundColor: 'var(--hud-surface-container)' }}
                 >
-                  <div className="text-sm text-theme-tertiary">-</div>
-                  <div className="text-xs text-theme-tertiary">0</div>
+                  <div className="text-sm" style={{ color: 'var(--hud-on-tertiary-container)' }}>-</div>
+                  <div className="text-xs" style={{ color: 'var(--hud-on-tertiary-container)' }}>0</div>
                 </div>
               ))
             )}
@@ -80,26 +102,31 @@ export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound
             return (
               <div
                 key={`${turn.round}-${idx}`}
-                className="bg-theme-card rounded-lg p-2 border border-theme-card"
+                className="rounded-lg p-2.5 border"
+                style={{
+                  backgroundColor: 'var(--hud-surface-container)',
+                  borderColor: 'rgba(69, 70, 77, 0.10)',
+                }}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-bold text-accent" data-testid={`completed-round-${turn.round}`}>
-                    {t('cricket.game.round')} {turn.round}
+                  <span className="text-xs font-bold" style={{ color: 'var(--hud-tertiary)' }} data-testid={`completed-round-${turn.round}`}>
+                    {"Round"} {turn.round}
                   </span>
-                  <span className="text-xs text-theme-muted">
-                    {turn.hits.length} {t('cricket.game.darts')}
+                  <span className="text-xs" style={{ color: 'var(--hud-on-tertiary-container)' }}>
+                    {turn.hits.length} {"Darts"}
                   </span>
                 </div>
                 <div className="flex gap-1.5">
                   {turn.hits.map((hit, hitIdx) => (
                     <div
                       key={hitIdx}
-                      className="flex-1 bg-theme-interactive rounded px-2 py-1.5 text-center"
+                      className="flex-1 rounded px-2 py-1.5 text-center"
+                      style={{ backgroundColor: 'var(--hud-surface-container-high)' }}
                     >
-                      <div className="text-sm font-bold text-theme-primary">
+                      <div className="text-sm font-bold" style={{ color: 'var(--hud-on-surface)' }}>
                         {hit.ShortName}
                       </div>
-                      <div className="text-xs text-theme-muted">
+                      <div className="text-xs" style={{ color: 'var(--hud-on-tertiary-container)' }}>
                         {hit.Value}
                       </div>
                     </div>
@@ -109,10 +136,11 @@ export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound
                     Array.from({ length: 3 - turn.hits.length }).map((_, i) => (
                       <div
                         key={`empty-${i}`}
-                        className="flex-1 bg-theme-secondary rounded px-2 py-1.5 text-center"
+                        className="flex-1 rounded px-2 py-1.5 text-center"
+                        style={{ backgroundColor: 'var(--hud-surface-container)' }}
                       >
-                        <div className="text-sm text-theme-tertiary">-</div>
-                        <div className="text-xs text-theme-tertiary">0</div>
+                        <div className="text-sm" style={{ color: 'var(--hud-on-tertiary-container)' }}>-</div>
+                        <div className="text-xs" style={{ color: 'var(--hud-on-tertiary-container)' }}>0</div>
                       </div>
                     ))}
                 </div>
@@ -120,8 +148,8 @@ export function PlayerTurnHistory({ player, turns, currentTurnHits, currentRound
             );
           })
         ) : (
-          <div className="text-theme-muted text-center py-4 text-sm">
-            {t('cricket.game.noCompletedTurns')}
+          <div className="text-center py-4 text-sm" style={{ color: 'var(--hud-on-tertiary-container)' }}>
+            {"No completed turns yet"}
           </div>
         )}
       </div>

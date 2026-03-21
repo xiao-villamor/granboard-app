@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
@@ -20,8 +19,8 @@ interface HitData {
 
 interface AnimationInfo {
   id: AnimationType;
-  nameKey: string;
-  descKey: string;
+  name: string;
+  desc: string;
   emoji: string;
   data?: HitData[];
 }
@@ -29,20 +28,20 @@ interface AnimationInfo {
 const animationsList: AnimationInfo[] = [
   {
     id: "three-miss",
-    nameKey: "threeMiss",
-    descKey: "threeMissDesc",
+    name: "Three Miss",
+    desc: "Triggered when a player misses 3 times in a row",
     emoji: "🐐",
   },
   {
     id: "three-triple",
-    nameKey: "threeTriple",
-    descKey: "threeTripleDesc",
+    name: "Three Triple",
+    desc: "Triggered when a player hits 3 triples in a row",
     emoji: "🦄",
   },
   {
     id: "hit-sequence",
-    nameKey: "threeSimples",
-    descKey: "threeSimplesDesc",
+    name: "Three Singles",
+    desc: "Triggered when a player hits 3 singles in a row",
     emoji: "🎯",
     data: [
       { Type: 1, Section: 20 },
@@ -52,8 +51,8 @@ const animationsList: AnimationInfo[] = [
   },
   {
     id: "hit-sequence",
-    nameKey: "singleDoubleTriple",
-    descKey: "singleDoubleTripleDesc",
+    name: "Single / Double / Triple",
+    desc: "Triggered when a player hits a single, double, and triple in one turn",
     emoji: "🎯",
     data: [
       { Type: 1, Section: 20 },
@@ -63,8 +62,8 @@ const animationsList: AnimationInfo[] = [
   },
   {
     id: "hit-sequence",
-    nameKey: "threeDoubles",
-    descKey: "threeDoublesDesc",
+    name: "Three Doubles",
+    desc: "Triggered when a player hits 3 doubles in a row",
     emoji: "🎯",
     data: [
       { Type: 2, Section: 20 },
@@ -74,16 +73,14 @@ const animationsList: AnimationInfo[] = [
   },
   {
     id: "victory",
-    nameKey: "victoryAnim",
-    descKey: "victoryAnimDesc",
+    name: "Victory",
+    desc: "Triggered when a player wins the game",
     emoji: "🏆",
   },
 ];
 
 export default function AnimationsDebugPage() {
   const router = useRouter();
-  const t = useTranslations("debug.animations");
-  const tCommon = useTranslations("common");
   const [playing, setPlaying] = useState<number | null>(null);
   const { playAnimation: triggerAnimation, AnimationOverlay } = useAnimations();
 
@@ -106,13 +103,13 @@ export default function AnimationsDebugPage() {
             onClick={() => router.push("/")}
             className="mb-4 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all flex items-center gap-2"
           >
-            <FontAwesomeIcon icon={faArrowLeft} /> {tCommon("back")}
+            <FontAwesomeIcon icon={faArrowLeft} /> Back
           </button>
           <h1 className="text-5xl font-bold text-white mb-2">
-            {t("title")}
+            Animation Debug
           </h1>
           <p className="text-purple-200">
-            {t("subtitle")}
+            Test all game animations
           </p>
         </div>
 
@@ -131,10 +128,10 @@ export default function AnimationsDebugPage() {
                   <span className="text-6xl">{animation.emoji}</span>
                   <div>
                     <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
-                      {t(animation.nameKey)}
+                      {animation.name}
                     </h3>
                     <p className="text-purple-200 text-sm mt-1">
-                      {t(animation.descKey)}
+                      {animation.desc}
                     </p>
                   </div>
                 </div>
@@ -150,7 +147,7 @@ export default function AnimationsDebugPage() {
 
         {/* Info */}
         <div className="mt-8 text-center text-purple-300 text-sm">
-          <p>{t("tip")}</p>
+          <p>Click a button to preview the animation</p>
         </div>
       </div>
     </main>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 import { Player } from "@/services/cricket";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -29,7 +28,6 @@ export function PlayerOrderDialog({
   onThrowForOrder,
   onClose,
 }: PlayerOrderDialogProps) {
-  const t = useTranslations();
   const [showManualOrder, setShowManualOrder] = useState(false);
   const [manualPlayers, setManualPlayers] = useState<Player[]>([...players]);
 
@@ -58,7 +56,7 @@ export function PlayerOrderDialog({
         <div className="bg-theme-elevated rounded-2xl p-8 max-w-2xl w-full mx-4 border border-theme-card shadow-2xl">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold text-theme-primary">
-              {t('cricket.playerOrder.dialog.manualTitle')}
+              {"Set Order Manually"}
             </h2>
             <button
               onClick={() => setShowManualOrder(false)}
@@ -70,7 +68,7 @@ export function PlayerOrderDialog({
 
           <div className="mb-6 p-4 bg-accent-bg rounded-xl border border-accent">
             <p className="text-sm text-accent">
-              {t('cricket.playerOrder.dialog.manualSubtitle')}
+              {"Drag players into your preferred order"}
             </p>
           </div>
 
@@ -120,7 +118,7 @@ export function PlayerOrderDialog({
             onClick={handleValidateManualOrder}
             className="w-full px-8 py-4 bg-green-700 text-white rounded-xl hover:bg-green-600 transition-all font-bold text-xl shadow-lg flex items-center justify-center gap-2"
           >
-            <FontAwesomeIcon icon={faCheck} /> {t('cricket.playerOrder.dialog.confirm')}
+            <FontAwesomeIcon icon={faCheck} /> {"Confirm Order"}
           </button>
         </div>
       </div>
@@ -132,7 +130,7 @@ export function PlayerOrderDialog({
       <div className="bg-theme-elevated rounded-2xl p-8 max-w-2xl w-full mx-4 border border-theme-card shadow-2xl">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-theme-primary">
-            {t('cricket.playerOrder.dialog.title')}
+            {"Player Order"}
           </h2>
           <button
             onClick={onClose}
@@ -144,7 +142,7 @@ export function PlayerOrderDialog({
 
         <div className="mb-6 p-4 bg-theme-secondary rounded-xl border border-theme-card">
           <p className="text-sm text-theme-primary font-medium">
-            {t('cricket.playerOrder.dialog.subtitle')}
+            {"Choose how to determine the player order"}
           </p>
         </div>
 
@@ -160,9 +158,9 @@ export function PlayerOrderDialog({
             <div className="flex items-center gap-4">
               <FontAwesomeIcon icon={faDice} className="text-4xl w-12 h-12" />
               <div>
-                <div className="text-xl font-bold">{t('cricket.playerOrder.dialog.randomOrder')}</div>
+                <div className="text-xl font-bold">{"Random Order"}</div>
                 <div className="text-sm text-purple-200">
-                  {t('cricket.playerOrder.dialog.randomOrderDesc')}
+                  {"Shuffle players into a random order"}
                 </div>
               </div>
             </div>
@@ -179,9 +177,9 @@ export function PlayerOrderDialog({
             <div className="flex items-center gap-4">
               <FontAwesomeIcon icon={faBullseye} className="text-4xl w-12 h-12" />
               <div>
-                <div className="text-xl font-bold">{t('cricket.playerOrder.dialog.throwForOrder')}</div>
+                <div className="text-xl font-bold">{"Throw for Order"}</div>
                 <div className="text-sm text-accent">
-                  {t('cricket.playerOrder.dialog.throwForOrderDesc')}
+                  {"Each player throws a dart — highest score goes first"}
                 </div>
               </div>
             </div>
@@ -195,9 +193,9 @@ export function PlayerOrderDialog({
             <div className="flex items-center gap-4">
               <FontAwesomeIcon icon={faPencil} className="text-4xl w-12 h-12" />
               <div>
-                <div className="text-xl font-bold">{t('cricket.playerOrder.dialog.manualOrder')}</div>
+                <div className="text-xl font-bold">{"Manual Order"}</div>
                 <div className="text-sm text-green-200">
-                  {t('cricket.playerOrder.dialog.manualOrderDesc')}
+                  {"Drag and drop players into your preferred order"}
                 </div>
               </div>
             </div>
@@ -214,9 +212,9 @@ export function PlayerOrderDialog({
             <div className="flex items-center gap-4">
               <FontAwesomeIcon icon={faClipboardList} className="text-4xl w-12 h-12" />
               <div>
-                <div className="text-xl font-bold">{t('cricket.playerOrder.dialog.currentOrder')}</div>
+                <div className="text-xl font-bold">{"Current Order"}</div>
                 <div className="text-sm text-slate-200">
-                  {t('cricket.playerOrder.dialog.currentOrderDesc')}
+                  {"Keep the current player order"}
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { Segment, SegmentType, SegmentSection } from "./boardinfo";
-import { getCheckoutSuggestion } from "./zeroone";
+import { getCheckoutSuggestion, calculateDartValue } from "./zeroone";
 
 // Training mode types
 export enum TrainingMode {
@@ -17,21 +17,6 @@ export interface DartHit {
   value: number;
   timestamp: number;
 }
-
-/** Calculate the point value of a segment hit */
-export const calculateSegmentValue = (segment: Segment): number => {
-  const section = segment.Section as number;
-  switch (segment.Type) {
-    case SegmentType.Single:
-      return section;
-    case SegmentType.Double:
-      return section * 2;
-    case SegmentType.Triple:
-      return section * 3;
-    default:
-      return 0;
-  }
-};
 
 // ============================================
 // Free Throw
@@ -79,7 +64,7 @@ export const processFreeThrowHit = (
     return state;
   }
 
-  const value = calculateSegmentValue(segment);
+  const value = calculateDartValue(segment);
   const hit: DartHit = { segment, value, timestamp: Date.now() };
   const newState = { ...state };
 
@@ -221,7 +206,7 @@ export const processTargetPracticeHit = (
   if (state.sessionFinished) return state;
   if (hitId && state.lastProcessedHit === hitId) return state;
 
-  const value = calculateSegmentValue(segment);
+  const value = calculateDartValue(segment);
   const hit: DartHit = { segment, value, timestamp: Date.now() };
   const section = segment.Section as number;
   const newState = { ...state };
@@ -350,7 +335,7 @@ export const processCheckoutHit = (
   if (state.sessionFinished) return state;
   if (hitId && state.lastProcessedHit === hitId) return state;
 
-  const value = calculateSegmentValue(segment);
+  const value = calculateDartValue(segment);
   const hit: DartHit = { segment, value, timestamp: Date.now() };
   const isDouble = segment.Type === SegmentType.Double;
   const newState = { ...state };

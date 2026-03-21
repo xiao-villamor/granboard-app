@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { SEGMENT_SECTIONS, SEGMENT_TYPES, CRICKET_NUMBERS } from "@/constants/segments";
 import { ANIMATION_TIMINGS } from "@/constants/animations";
 import {
@@ -40,7 +39,6 @@ import { ShareGameDialog } from "@/app/components/ShareGameDialog";
 
 export default function CricketGame() {
   const router = useRouter();
-  const t = useTranslations();
   const { openDialog, closeDialog } = useSettings();
 
   // Animation states
@@ -52,6 +50,7 @@ export default function CricketGame() {
 
   // Dialog states
   const [showLegend, setShowLegend] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   // Sound effects
   const { playSound } = useSounds();
@@ -207,7 +206,6 @@ export default function CricketGame() {
     createRoom,
     closeRoom,
     broadcastState,
-    broadcastHit,
   } = useGameRoom({ gameType: "cricket" });
 
   // Broadcast full game state whenever it changes
@@ -318,9 +316,9 @@ export default function CricketGame() {
             closeDialog();
             handleNewGame();
           }}
-          className="w-full px-6 py-4 bg-green-600 text-white rounded-xl hover:bg-green-500 font-bold text-lg transition-all shadow-xl focus:outline-none"
+          className="w-full px-6 py-4 rounded-xl font-bold text-lg transition-all shadow-xl focus:outline-none hud-gradient-cta"
         >
-          {t('cricket.game.newGame')}
+          {"New Game"}
         </button>
         <button
           data-testid="quit-button"
@@ -328,9 +326,13 @@ export default function CricketGame() {
             closeDialog();
             handleQuit();
           }}
-          className="w-full px-6 py-4 bg-red-600 text-white rounded-xl hover:bg-red-500 font-bold text-lg transition-all shadow-lg hover:scale-105"
+          className="w-full px-6 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:scale-105"
+          style={{
+            backgroundColor: 'var(--hud-error-container)',
+            color: 'var(--hud-on-error-container)',
+          }}
         >
-          {t('cricket.game.quit')}
+          {"Quit"}
         </button>
       </div>
     );
@@ -341,8 +343,8 @@ export default function CricketGame() {
   // Loading state
   if (!gameState) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-theme-primary">
-        <div className="text-2xl text-theme-primary">{t('common.loading')}</div>
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'var(--hud-background)' }}>
+        <div className="text-2xl" style={{ color: 'var(--hud-on-surface)' }}>{"Loading"}</div>
       </div>
     );
   }
@@ -350,7 +352,10 @@ export default function CricketGame() {
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <main className="h-screen bg-theme-primary flex flex-col px-4 py-3 gap-3 overflow-hidden">
+    <main
+      className="h-screen flex flex-col px-4 py-3 gap-3 overflow-hidden"
+      style={{ backgroundColor: 'var(--hud-background)' }}
+    >
       {/* Animations overlay */}
       <AnimationOverlay />
 
@@ -360,16 +365,9 @@ export default function CricketGame() {
         onConnect={connectToBoard}
         onShowLegend={() => setShowLegend(true)}
         onShowSettings={handleShowSettings}
-        shareGameSlot={
-          <ShareGameDialog
-            roomCode={roomCode}
-            spectatorCount={spectatorCount}
-            isConnected={wsConnected}
-            onCreateRoom={createRoom}
-            onCloseRoom={closeRoom}
-            roomState={roomState}
-          />
-        }
+        onShowShare={() => setShowShare(true)}
+        roomActive={!!roomCode}
+        spectatorCount={spectatorCount}
       />
 
       {gameState.gameFinished && gameState.winner && (
@@ -435,6 +433,16 @@ export default function CricketGame() {
         show={showLegend}
         gameMode={gameState.mode}
         onClose={() => setShowLegend(false)}
+      />
+      <ShareGameDialog
+        open={showShare}
+        onClose={() => setShowShare(false)}
+        roomCode={roomCode}
+        spectatorCount={spectatorCount}
+        isConnected={wsConnected}
+        onCreateRoom={createRoom}
+        onCloseRoom={closeRoom}
+        roomState={roomState}
       />
     </main>
   );

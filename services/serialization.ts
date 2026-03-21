@@ -107,11 +107,6 @@ function serializePlayerZeroOneState(player: PlayerZeroOneState): SerializedPlay
   };
 }
 
-export function deserializeZeroOneState(data: SerializedZeroOneGameState): SerializedZeroOneGameState {
-  // Already in serialized format, return as-is (spectator side uses serialized types directly)
-  return data;
-}
-
 // ─── Segment Serialization ───────────────────────────────────
 
 export function serializeSegment(segment: Segment): SerializedSegment {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useTranslations } from "next-intl";
 
 export type AnimationType =
   | "three-miss"
@@ -88,8 +87,6 @@ export function useAnimations() {
     null
   );
   const [animationKey, setAnimationKey] = useState<number>(0);
-  const t = useTranslations("animations");
-
   const playAnimation = useCallback(
     (type: AnimationType, data?: HitData[], duration: number = 3000) => {
       setAnimationKey((prev) => prev + 1);
@@ -122,7 +119,7 @@ export function useAnimations() {
             <div className="text-center">
               <div className="text-9xl mb-4 animate-shake">🐐</div>
               <div className="text-4xl font-bold text-white animate-pulse">
-                {t("threeMiss")}
+                {"Three Misses!"}
               </div>
             </div>
           )}
@@ -130,10 +127,10 @@ export function useAnimations() {
             <div className="text-center">
               <div className="text-9xl mb-4 animate-rainbow">🦄</div>
               <div className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent animate-pulse">
-                {t("threeTriple")}
+                {"Hat Trick!"}
               </div>
               <div className="text-2xl text-purple-300 mt-2">
-                {t("threeTripleSubtitle")}
+                {"Three triples in a row!"}
               </div>
             </div>
           )}
@@ -141,10 +138,10 @@ export function useAnimations() {
             <div className="text-center">
               <div className="text-9xl mb-4 animate-trophy">🏆</div>
               <div className="text-4xl font-bold text-yellow-400 animate-pulse">
-                {t("victory")}
+                {"Victory!"}
               </div>
               <div className="text-2xl text-purple-300 mt-2">
-                {t("victorySubtitle")}
+                {"Congratulations!"}
               </div>
             </div>
           )}
@@ -236,7 +233,7 @@ export function useAnimations() {
         `}</style>
       </div>
     );
-  }, [currentAnimation, animationKey, t]);
+  }, [currentAnimation, animationKey]);
 
   return {
     playAnimation,

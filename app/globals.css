@@ -8,394 +8,327 @@
   );
 }
 
-@theme {
-  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --background-image-gradient-conic: conic-gradient(
-    from 180deg at 50% 50%,
-    var(--tw-gradient-stops)
-  );
-}
+/* ============================================================
+   STADIUM HUD DESIGN SYSTEM
+   Derived from Stitch project: "Oche & Hearth"
+   Color palette: Deep navy + amber primary + teal secondary
+   ============================================================ */
 
-/* Light Theme Variables (Default) */
+/* === Dark Theme (Default — Stadium HUD is dark-first) === */
 :root {
-  /* Backgrounds */
-  --bg-primary: 248 250 252; /* slate-50 */
-  --bg-secondary: 241 245 249; /* slate-100 */
-  --bg-tertiary: 226 232 240; /* slate-200 */
-  --bg-elevated: 255 255 255; /* white */
-  --bg-elevated-alpha: rgba(255, 255, 255, 0.8);
+  /* Surface Hierarchy (5 tiers, no hard borders) */
+  --hud-background: #0b1326;
+  --hud-surface: #0b1326;
+  --hud-surface-container-lowest: #060e20;
+  --hud-surface-container-low: #131b2e;
+  --hud-surface-container: #171f33;
+  --hud-surface-container-high: #222a3d;
+  --hud-surface-container-highest: #2d3449;
+  --hud-surface-dim: #0b1326;
+  --hud-surface-bright: #31394d;
+  --hud-surface-variant: #2d3449;
 
-  /* Text Colors */
-  --text-primary: 15 23 42; /* slate-900 */
-  --text-secondary: 51 65 85; /* slate-700 */
-  --text-tertiary: 71 85 105; /* slate-600 */
-  --text-muted: 148 163 184; /* slate-400 */
+  /* Content/Text Colors */
+  --hud-on-surface: #dae2fd;
+  --hud-on-background: #dae2fd;
+  --hud-on-surface-variant: #c6c6cd;
+  --hud-tertiary: #b9c8de;
+  --hud-tertiary-container: #081828;
+  --hud-on-tertiary-container: #738296;
 
-  /* Borders */
-  --border-primary: 226 232 240; /* slate-200 */
-  --border-secondary: 203 213 225; /* slate-300 */
+  /* Primary (Amber/Gold) */
+  --hud-primary: #ffb95f;
+  --hud-on-primary: #472a00;
+  --hud-primary-container: #251400;
+  --hud-on-primary-container: #b47200;
+  --hud-primary-fixed: #ffddb8;
+  --hud-primary-fixed-dim: #ffb95f;
 
-  /* Interactive Elements */
-  --interactive-bg: 226 232 240; /* slate-200 */
-  --interactive-bg-hover: 203 213 225; /* slate-300 */
-  --interactive-text: 51 65 85; /* slate-700 */
+  /* Secondary (Teal/Mint) */
+  --hud-secondary: #44e2cd;
+  --hud-on-secondary: #003731;
+  --hud-secondary-container: #03c6b2;
+  --hud-on-secondary-container: #004d44;
+  --hud-secondary-fixed: #62fae3;
+  --hud-secondary-fixed-dim: #3cddc7;
 
-  /* Input Elements */
-  --input-bg: 241 245 249; /* slate-100 */
-  --input-border: 203 213 225; /* slate-300 */
-  --input-text: 15 23 42; /* slate-900 */
-  --input-placeholder: 100 116 139; /* slate-500 */
+  /* Error */
+  --hud-error: #ffb4ab;
+  --hud-on-error: #690005;
+  --hud-error-container: #93000a;
+  --hud-on-error-container: #ffdad6;
 
-  /* Card/Container */
-  --card-bg: 255 255 255; /* white */
-  --card-bg-alpha: rgba(255, 255, 255, 0.9);
-  --card-border: 226 232 240; /* slate-200 */
+  /* Outline & Borders (Ghost borders only) */
+  --hud-outline: #909097;
+  --hud-outline-variant: #45464d;
 
-  /* Accent Color - Dartboard Green */
-  --accent: 0 107 61; /* #006B3D - traditional dartboard green */
-  --accent-bg: rgba(0, 107, 61, 0.15); /* transparent background */
-  --accent-text: 0 107 61; /* same as accent for light mode */
+  /* Inverse */
+  --hud-inverse-surface: #dae2fd;
+  --hud-inverse-on-surface: #283044;
+  --hud-inverse-primary: #855300;
+
+  /* Surface Tint */
+  --hud-surface-tint: #ffb95f;
+
+  /* Game-mode accent overrides */
+  --hud-game-01: #809bff;         /* electric blue for 01 */
+  --hud-game-01-bg: #94aaff;
+  --hud-game-cricket: #5cfd80;    /* emerald green for Cricket */
+  --hud-game-cricket-bg: #006e2a;
+  --hud-game-training: #ff833f;   /* warm orange for Training */
+  --hud-game-training-bg: #fd6c00;
+
+  /* Glass effect values */
+  --hud-glass-bg: rgba(45, 52, 73, 0.7);
+  --hud-glass-blur: 24px;
+
+  /* Legacy compat aliases (maps old theme vars to new HUD system) */
+  --bg-primary: 11 19 38;
+  --bg-secondary: 19 27 46;
+  --bg-tertiary: 34 42 61;
+  --bg-elevated: 45 52 73;
+  --bg-elevated-alpha: rgba(45, 52, 73, 0.7);
+  --text-primary: 218 226 253;
+  --text-secondary: 185 200 222;
+  --text-tertiary: 198 198 205;
+  --text-muted: 115 130 150;
+  --border-primary: 69 70 77;
+  --border-secondary: 69 70 77;
+  --interactive-bg: 34 42 61;
+  --interactive-bg-hover: 45 52 73;
+  --interactive-text: 218 226 253;
+  --input-bg: 23 31 51;
+  --input-border: 69 70 77;
+  --input-text: 218 226 253;
+  --input-placeholder: 115 130 150;
+  --card-bg: 19 27 46;
+  --card-bg-alpha: rgba(19, 27, 46, 0.7);
+  --card-border: 69 70 77;
+  --accent: 255 185 95;
+  --accent-bg: rgba(255, 185, 95, 0.15);
+  --accent-text: 255 185 95;
 }
 
-/* Dark Theme Variables */
-.dark {
-  /* Backgrounds */
-  --bg-primary: 15 23 42; /* slate-900 */
-  --bg-secondary: 30 41 59; /* slate-800 */
-  --bg-tertiary: 51 65 85; /* slate-700 */
-  --bg-elevated: 30 41 59; /* slate-800 */
-  --bg-elevated-alpha: rgba(30, 41, 59, 0.5);
+/* === Light Theme (Inverted Stadium HUD) === */
+.light {
+  --hud-background: #f5f7fb;
+  --hud-surface: #ffffff;
+  --hud-surface-container-lowest: #ffffff;
+  --hud-surface-container-low: #f0f2f8;
+  --hud-surface-container: #eaecf4;
+  --hud-surface-container-high: #e4e6ee;
+  --hud-surface-container-highest: #dee0e8;
+  --hud-on-surface: #1a1c25;
+  --hud-on-background: #1a1c25;
+  --hud-on-surface-variant: #45464d;
+  --hud-tertiary: #555e6f;
+  --hud-on-tertiary-container: #39485a;
+  --hud-primary: #855300;
+  --hud-on-primary: #ffffff;
+  --hud-on-primary-container: #653e00;
+  --hud-secondary: #005047;
+  --hud-on-secondary: #ffffff;
+  --hud-error: #ba1a1a;
+  --hud-outline: #75767d;
+  --hud-outline-variant: #c5c6cd;
+  --hud-glass-bg: rgba(255, 255, 255, 0.8);
 
-  /* Text Colors */
-  --text-primary: 248 250 252; /* slate-50 */
-  --text-secondary: 226 232 240; /* slate-200 */
-  --text-tertiary: 203 213 225; /* slate-300 */
-  --text-muted: 148 163 184; /* slate-400 */
-
-  /* Borders */
-  --border-primary: 51 65 85; /* slate-700 */
-  --border-secondary: 71 85 105; /* slate-600 */
-
-  /* Interactive Elements */
-  --interactive-bg: 51 65 85; /* slate-700 */
-  --interactive-bg-hover: 71 85 105; /* slate-600 */
-  --interactive-text: 226 232 240; /* slate-200 */
-
-  /* Input Elements */
-  --input-bg: 51 65 85; /* slate-700 */
-  --input-border: 71 85 105; /* slate-600 */
-  --input-text: 248 250 252; /* slate-50 */
-  --input-placeholder: 148 163 184; /* slate-400 */
-
-  /* Card/Container */
-  --card-bg: 30 41 59; /* slate-800 */
-  --card-bg-alpha: rgba(30, 41, 59, 0.5);
-  --card-border: 51 65 85; /* slate-700 */
-
-  /* Accent Color - Dartboard Green */
-  --accent: 0 107 61; /* #006B3D - traditional dartboard green */
-  --accent-bg: rgba(0, 107, 61, 0.2); /* transparent background */
-  --accent-text: 74 222 128; /* #4ade80 - green-400, lighter for dark mode visibility */
+  --bg-primary: 245 247 251;
+  --bg-secondary: 240 242 248;
+  --bg-tertiary: 234 236 244;
+  --bg-elevated: 255 255 255;
+  --bg-elevated-alpha: rgba(255, 255, 255, 0.8);
+  --text-primary: 26 28 37;
+  --text-secondary: 85 94 111;
+  --text-tertiary: 69 70 77;
+  --text-muted: 117 118 125;
+  --border-primary: 197 198 205;
+  --border-secondary: 197 198 205;
+  --interactive-bg: 234 236 244;
+  --interactive-bg-hover: 222 224 232;
+  --interactive-text: 26 28 37;
+  --input-bg: 240 242 248;
+  --input-border: 197 198 205;
+  --input-text: 26 28 37;
+  --input-placeholder: 117 118 125;
+  --card-bg: 255 255 255;
+  --card-bg-alpha: rgba(255, 255, 255, 0.9);
+  --card-border: 197 198 205;
+  --accent: 133 83 0;
+  --accent-bg: rgba(133, 83, 0, 0.1);
+  --accent-text: 133 83 0;
 }
 
 body {
   @apply min-h-screen;
-  background-color: rgb(var(--bg-primary));
-  color: rgb(var(--text-primary));
+  background-color: var(--hud-background);
+  color: var(--hud-on-surface);
+  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
 }
 
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 
-  /* Theme-aware utility classes */
-  .bg-theme-primary {
-    background-color: rgb(var(--bg-primary));
-  }
-  .bg-theme-secondary {
-    background-color: rgb(var(--bg-secondary));
-  }
-  .bg-theme-tertiary {
-    background-color: rgb(var(--bg-tertiary));
-  }
-  .bg-theme-elevated {
-    background-color: rgb(var(--bg-elevated));
-  }
-  .bg-theme-elevated-alpha {
-    background-color: var(--bg-elevated-alpha);
+  /* --- HUD Surface Utilities --- */
+  .hud-bg { background-color: var(--hud-background); }
+  .hud-surface { background-color: var(--hud-surface); }
+  .hud-surface-lowest { background-color: var(--hud-surface-container-lowest); }
+  .hud-surface-low { background-color: var(--hud-surface-container-low); }
+  .hud-surface-mid { background-color: var(--hud-surface-container); }
+  .hud-surface-high { background-color: var(--hud-surface-container-high); }
+  .hud-surface-highest { background-color: var(--hud-surface-container-highest); }
+
+  /* --- HUD Text Utilities --- */
+  .hud-text { color: var(--hud-on-surface); }
+  .hud-text-variant { color: var(--hud-on-surface-variant); }
+  .hud-text-tertiary { color: var(--hud-tertiary); }
+  .hud-text-muted { color: var(--hud-on-tertiary-container); }
+  .hud-text-primary { color: var(--hud-primary); }
+  .hud-text-secondary { color: var(--hud-secondary); }
+  .hud-text-error { color: var(--hud-error); }
+
+  /* --- HUD Border Utilities (Ghost borders) --- */
+  .hud-border { border-color: var(--hud-outline-variant); }
+  .hud-border-ghost { border-color: rgba(69, 70, 77, 0.15); }
+  .hud-border-ghost-10 { border-color: rgba(69, 70, 77, 0.10); }
+
+  /* --- Glass Card --- */
+  .glass-card {
+    background: var(--hud-glass-bg);
+    backdrop-filter: blur(var(--hud-glass-blur));
+    -webkit-backdrop-filter: blur(var(--hud-glass-blur));
   }
 
-  .text-theme-primary {
-    color: rgb(var(--text-primary));
-  }
-  .text-theme-secondary {
-    color: rgb(var(--text-secondary));
-  }
-  .text-theme-tertiary {
-    color: rgb(var(--text-tertiary));
-  }
-  .text-theme-muted {
-    color: rgb(var(--text-muted));
+  /* --- Gradient CTA --- */
+  .hud-gradient-cta {
+    background: linear-gradient(135deg, var(--hud-primary) 0%, var(--hud-on-primary-container) 100%);
+    color: var(--hud-on-primary);
   }
 
-  .border-theme-primary {
-    border-color: rgb(var(--border-primary));
-  }
-  .border-theme-secondary {
-    border-color: rgb(var(--border-secondary));
-  }
+  /* --- Game-mode accent utilities --- */
+  .game-01-accent { color: var(--hud-game-01); }
+  .game-01-bg { background-color: var(--hud-game-01); }
+  .game-cricket-accent { color: var(--hud-game-cricket); }
+  .game-cricket-bg { background-color: var(--hud-game-cricket); }
+  .game-training-accent { color: var(--hud-game-training); }
+  .game-training-bg { background-color: var(--hud-game-training); }
 
-  .bg-theme-interactive {
-    background-color: rgb(var(--interactive-bg));
-  }
-  .bg-theme-interactive-hover:hover {
-    background-color: rgb(var(--interactive-bg-hover));
-  }
-  .text-theme-interactive {
-    color: rgb(var(--interactive-text));
-  }
+  /* --- Legacy theme utilities (backward compat) --- */
+  .bg-theme-primary { background-color: rgb(var(--bg-primary)); }
+  .bg-theme-secondary { background-color: rgb(var(--bg-secondary)); }
+  .bg-theme-tertiary { background-color: rgb(var(--bg-tertiary)); }
+  .bg-theme-elevated { background-color: rgb(var(--bg-elevated)); }
+  .bg-theme-elevated-alpha { background-color: var(--bg-elevated-alpha); }
 
-  .bg-theme-input {
-    background-color: rgb(var(--input-bg));
-  }
-  .border-theme-input {
-    border-color: rgb(var(--input-border));
-  }
-  .text-theme-input {
-    color: rgb(var(--input-text));
-  }
-  .placeholder-theme-input::placeholder {
-    color: rgb(var(--input-placeholder));
-  }
+  .text-theme-primary { color: rgb(var(--text-primary)); }
+  .text-theme-secondary { color: rgb(var(--text-secondary)); }
+  .text-theme-tertiary { color: rgb(var(--text-tertiary)); }
+  .text-theme-muted { color: rgb(var(--text-muted)); }
 
-  .bg-theme-card {
-    background-color: rgb(var(--card-bg));
-  }
-  .bg-theme-card-alpha {
-    background-color: var(--card-bg-alpha);
-  }
-  .border-theme-card {
-    border-color: rgb(var(--card-border));
-  }
+  .border-theme-primary { border-color: rgb(var(--border-primary)); }
+  .border-theme-secondary { border-color: rgb(var(--border-secondary)); }
 
-  /* Accent color utility classes */
-  .text-accent {
-    color: rgb(var(--accent-text));
-  }
-  .bg-accent {
-    background-color: rgb(var(--accent));
-  }
-  .bg-accent-bg {
-    background-color: var(--accent-bg);
-  }
-  .border-accent {
-    border-color: rgb(var(--accent));
-  }
-  .ring-accent {
-    --tw-ring-color: rgb(var(--accent));
-  }
+  .bg-theme-interactive { background-color: rgb(var(--interactive-bg)); }
+  .bg-theme-interactive-hover:hover { background-color: rgb(var(--interactive-bg-hover)); }
+  .text-theme-interactive { color: rgb(var(--interactive-text)); }
 
-  .bg-theme-gradient {
-    background-color: rgb(var(--bg-primary));
-  }
+  .bg-theme-input { background-color: rgb(var(--input-bg)); }
+  .border-theme-input { border-color: rgb(var(--input-border)); }
+  .text-theme-input { color: rgb(var(--input-text)); }
+  .placeholder-theme-input::placeholder { color: rgb(var(--input-placeholder)); }
 
-  /* Game mode specific colors for light mode */
-  .bg-game-standard-light {
-    background-color: rgba(0, 107, 61, 0.1); /* accent green/10 */
-  }
-  .border-game-standard-light {
-    border-color: rgba(0, 107, 61, 0.3); /* accent green/30 */
-  }
-  .bg-game-cutthroat-light {
-    background-color: rgba(254, 226, 226, 0.3); /* red-100/30 */
-  }
-  .border-game-cutthroat-light {
-    border-color: rgb(252, 165, 165); /* red-300 */
-  }
-  .bg-game-01-light {
-    background-color: rgba(29, 78, 216, 0.1); /* blue-700/10 */
-  }
-  .border-game-01-light {
-    border-color: rgba(29, 78, 216, 0.3); /* blue-700/30 */
-  }
+  .bg-theme-card { background-color: rgb(var(--card-bg)); }
+  .bg-theme-card-alpha { background-color: var(--card-bg-alpha); }
+  .border-theme-card { border-color: rgb(var(--card-border)); }
 
-  /* Dark mode game colors */
-  .dark .bg-game-standard-light {
-    background-color: rgba(0, 107, 61, 0.2); /* accent green/20 */
-  }
-  .dark .border-game-standard-light {
-    border-color: rgba(0, 107, 61, 0.5); /* accent green/50 */
-  }
-  .dark .bg-game-cutthroat-light {
-    background-color: rgba(127, 29, 29, 0.3); /* red-900/30 */
-  }
-  .dark .border-game-cutthroat-light {
-    border-color: rgba(185, 28, 28, 0.6); /* red-700/60 */
-  }
-  .dark .bg-game-01-light {
-    background-color: rgba(29, 78, 216, 0.2); /* blue-700/20 */
-  }
-  .dark .border-game-01-light {
-    border-color: rgba(29, 78, 216, 0.5); /* blue-700/50 */
-  }
+  .text-accent { color: rgb(var(--accent-text)); }
+  .bg-accent { background-color: rgb(var(--accent)); }
+  .bg-accent-bg { background-color: var(--accent-bg); }
+  .border-accent { border-color: rgb(var(--accent)); }
+  .ring-accent { --tw-ring-color: rgb(var(--accent)); }
+
+  .bg-theme-gradient { background-color: rgb(var(--bg-primary)); }
 }
 
-/* Custom animations for Cricket game */
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in-down {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes bounce-scale {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes slide-up {
-  from {
-    transform: translateY(100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes shuffle {
-  0% {
-    transform: translateX(0) scale(1);
-  }
-  25% {
-    transform: translateX(-5px) scale(0.98);
-  }
-  75% {
-    transform: translateX(5px) scale(0.98);
-  }
-  100% {
-    transform: translateX(0) scale(1);
-  }
+  0% { transform: translateX(0) scale(1); }
+  25% { transform: translateX(-5px) scale(0.98); }
+  75% { transform: translateX(5px) scale(0.98); }
+  100% { transform: translateX(0) scale(1); }
 }
 
 @keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(0, 107, 61, 0.3), 0 0 20px rgba(0, 107, 61, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(0, 107, 61, 0.5), 0 0 40px rgba(0, 107, 61, 0.2);
-  }
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 185, 95, 0.3), 0 0 20px rgba(255, 185, 95, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(255, 185, 95, 0.5), 0 0 40px rgba(255, 185, 95, 0.2); }
 }
 
 @keyframes live-dot {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.8);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @keyframes scale-in {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.5s ease-out both;
-}
-
-.animate-fade-in-down {
-  animation: fade-in-down 0.3s ease-out both;
-}
-
-.animate-bounce-scale {
-  animation: bounce-scale 0.5s ease-out;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out;
-}
-
-.animate-shuffle {
-  animation: shuffle 0.15s ease-in-out;
-}
-
-.animate-glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-.animate-live-dot {
-  animation: live-dot 1.5s ease-in-out infinite;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.3s ease-out both;
-}
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+.animate-fade-in-up { animation: fade-in-up 0.5s ease-out both; }
+.animate-fade-in-down { animation: fade-in-down 0.3s ease-out both; }
+.animate-bounce-scale { animation: bounce-scale 0.5s ease-out; }
+.animate-slide-up { animation: slide-up 0.5s ease-out; }
+.animate-shuffle { animation: shuffle 0.15s ease-in-out; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-live-dot { animation: live-dot 1.5s ease-in-out infinite; }
+.animate-scale-in { animation: scale-in 0.3s ease-out both; }
+.animate-pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
 }
@@ -406,34 +339,45 @@ body {
 .stagger-children > *:nth-child(3) { animation-delay: 160ms; }
 .stagger-children > *:nth-child(4) { animation-delay: 240ms; }
 .stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
 
-/* Custom scrollbar styles */
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: rgb(var(--bg-secondary));
+  background-color: var(--hud-surface-container-low);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--border-secondary));
+  background-color: var(--hud-outline-variant);
   border-radius: 10px;
-  border: 2px solid rgb(var(--bg-secondary));
+  border: 2px solid var(--hud-surface-container-low);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(var(--interactive-bg-hover));
+  background-color: var(--hud-outline);
 }
 
-::-webkit-scrollbar-thumb:active {
-  background: rgb(37 99 235); /* blue-600 */
-}
-
-/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgb(var(--border-secondary)) rgb(var(--bg-secondary));
+  scrollbar-color: var(--hud-outline-variant) var(--hud-surface-container-low);
+}
+
+/* ============================================================
+   FONT FAMILY HELPERS
+   ============================================================ */
+.font-headline {
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+.font-body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.font-label {
+  font-family: 'Inter', system-ui, sans-serif;
 }

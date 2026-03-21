@@ -30,16 +30,28 @@ export function HitAnimation({ hit, onComplete }: HitAnimationProps) {
 
       {/* Hit display */}
       <div className="relative animate-bounce-scale">
-        <div className="bg-theme-card text-theme-primary rounded-3xl shadow-2xl p-16 border-4 border-accent">
+        <div
+          className="rounded-3xl shadow-2xl p-16 border"
+          style={{
+            backgroundColor: 'var(--hud-surface-container-low)',
+            borderColor: 'rgba(255, 185, 95, 0.3)',
+          }}
+        >
           <div className="text-center">
-            <div className="text-9xl font-black text-accent">
+            <div
+              className="text-9xl font-headline font-extrabold"
+              style={{ color: 'var(--hud-primary)' }}
+            >
               {hit.ShortName}
             </div>
           </div>
         </div>
 
         {/* Glow effect */}
-        <div className="absolute inset-0 bg-accent rounded-3xl blur-3xl opacity-40 animate-pulse" />
+        <div
+          className="absolute inset-0 rounded-3xl blur-3xl opacity-40 animate-pulse"
+          style={{ backgroundColor: 'var(--hud-primary)' }}
+        />
       </div>
     </div>
   );

@@ -1,4 +1,7 @@
 import { SegmentSection, SegmentType, Segment } from "@/services/boardinfo";
+import { CRICKET_NUMBERS, CricketNumber } from "@/services/cricket";
+export { CRICKET_NUMBERS } from "@/services/cricket";
+export type { CricketNumber } from "@/services/cricket";
 
 /**
  * Segment section constants
@@ -17,12 +20,6 @@ export const SEGMENT_TYPES = {
   TRIPLE: SegmentType.Triple,
   OTHER: SegmentType.Other,
 } as const;
-
-/**
- * Cricket numbers (15-20 and Bull)
- */
-export const CRICKET_NUMBERS = [15, 16, 17, 18, 19, 20, 25] as const;
-export type CricketNumber = typeof CRICKET_NUMBERS[number];
 
 /**
  * Utility functions for segment type checking

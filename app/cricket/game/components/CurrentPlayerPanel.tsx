@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { Segment } from "@/services/boardinfo";
 import { PlayerState as PlayerCricketState } from "@/services/cricket";
 import { PlayerState as PlayerZeroOneState } from "@/services/zeroone";
@@ -26,22 +25,30 @@ export function CurrentPlayerPanel({
   onUndo,
   onNextPlayer,
 }: CurrentPlayerPanelProps) {
-  const t = useTranslations();
-
   return (
-    <div className="bg-theme-elevated-alpha backdrop-blur-sm rounded-xl shadow-2xl p-4 border border-theme-card">
+    <div
+      className="rounded-xl shadow-2xl p-4 border"
+      style={{
+        background: 'var(--hud-glass-bg)',
+        backdropFilter: 'blur(var(--hud-glass-blur))',
+        WebkitBackdropFilter: 'blur(var(--hud-glass-blur))',
+        borderColor: 'rgba(69, 70, 77, 0.15)',
+      }}
+    >
       <div className="flex justify-between items-center gap-4">
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-theme-primary mb-1">
-            <span className="text-accent">{currentPlayer.player.name}</span>
+          <h2 className="text-2xl font-headline font-extrabold mb-1" style={{ color: 'var(--hud-on-surface)' }}>
+            <span style={{ color: 'var(--hud-primary)' }}>{currentPlayer.player.name}</span>
           </h2>
-          <div className="flex gap-3 text-theme-tertiary text-sm">
+          <div className="flex gap-3 text-sm" style={{ color: 'var(--hud-tertiary)' }}>
             <p data-testid="dart-counter">
-              {t('cricket.game.dart')} <span className="font-bold text-theme-primary">{dartsThrown}</span> / 3
+              {"Dart"}{' '}
+              <span className="font-bold" style={{ color: 'var(--hud-on-surface)' }}>{dartsThrown}</span> / 3
             </p>
-            <span>•</span>
+            <span style={{ color: 'var(--hud-outline-variant)' }}>|</span>
             <p data-testid="round-counter">
-              {t('cricket.game.round')} <span className="font-bold text-theme-primary">{currentRound}</span>
+              {"Round"}{' '}
+              <span className="font-bold" style={{ color: 'var(--hud-on-surface)' }}>{currentRound}</span>
               {maxRounds > 0 && <> / {maxRounds}</>}
             </p>
           </div>
@@ -51,22 +58,32 @@ export function CurrentPlayerPanel({
             data-testid="undo-button"
             onClick={onUndo}
             disabled={!hasHistory}
-            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-lg ${
-              !hasHistory
-                ? "bg-theme-interactive text-theme-muted cursor-not-allowed"
-                : "bg-orange-600 text-white hover:bg-orange-500 hover:scale-105"
-            }`}
-            title={t('cricket.game.undoLastMove')}
+            className="px-4 py-2 rounded-lg font-bold text-sm transition-all"
+            style={{
+              backgroundColor: !hasHistory
+                ? 'var(--hud-surface-container-high)'
+                : 'var(--hud-primary)',
+              color: !hasHistory
+                ? 'var(--hud-on-tertiary-container)'
+                : 'var(--hud-on-primary)',
+              cursor: !hasHistory ? 'not-allowed' : 'pointer',
+              opacity: !hasHistory ? 0.5 : 1,
+            }}
+            title={"Undo last move"}
           >
-            ↶ {t('cricket.game.undo')}
+            ↶ {"Undo"}
           </button>
           <button
             data-testid="next-player-button"
             onClick={onNextPlayer}
-            className="px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-lg bg-red-600 text-white hover:bg-red-500 hover:scale-105"
-            title={t('cricket.game.nextPlayerTooltip')}
+            className="px-4 py-2 rounded-lg font-bold text-sm transition-all"
+            style={{
+              backgroundColor: 'var(--hud-error-container)',
+              color: 'var(--hud-on-error-container)',
+            }}
+            title={"End turn and pass to next player"}
           >
-            🔴 {t('cricket.game.nextPlayer')}
+            {"Next Player"}
           </button>
         </div>
       </div>

@@ -4,14 +4,11 @@ import { Granboard } from "@/services/granboard";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { LanguageSelector } from "./components/LanguageSelector";
 import { useSettings } from "./contexts/SettingsContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear, faEye, faBullseye, faCircleDot } from "@fortawesome/free-solid-svg-icons";
+import { faGear, faEye, faBullseye, faCircleDot, faCrosshairs } from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
-  const t = useTranslations();
   const router = useRouter();
   const { openDialog } = useSettings();
   const [granboard, setGranboard] = useState<Granboard>();
@@ -45,142 +42,241 @@ export default function Home() {
     }
   };
 
+  const connectionStateLabel = () => {
+    switch (connectionState) {
+      case "waiting": return "Connect";
+      case "connecting": return "Connecting...";
+      case "connected": return "Connected";
+      case "error": return "Error";
+    }
+  };
+
   return (
-    <main className="relative min-h-screen bg-theme-primary flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-green-600/5 blur-3xl" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-600/5 blur-3xl" />
+    <main className="min-h-screen pb-24" style={{ backgroundColor: 'var(--hud-background)', color: 'var(--hud-on-surface)' }}>
+      {/* Background Layering Effects */}
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full blur-[100px]" style={{ backgroundColor: 'rgba(255, 185, 95, 0.05)' }} />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full blur-[100px]" style={{ backgroundColor: 'rgba(68, 226, 205, 0.05)' }} />
       </div>
 
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-4 z-10">
-        <button
-          onClick={() => openDialog()}
-          className="px-4 py-2 bg-theme-elevated/80 backdrop-blur-sm text-theme-secondary border border-theme-primary rounded-xl transition-all hover:border-accent hover:text-accent flex items-center gap-2 text-sm font-medium"
-        >
-          <FontAwesomeIcon icon={faGear} className="w-4 h-4" /> {t('cricket.game.settings')}
-        </button>
-
-        <div className="flex items-center gap-3">
-          <span className="text-theme-muted text-xs uppercase tracking-wider">{t('common.bluetooth')}</span>
-          <button
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all border ${
-              connectionState === "connected"
-                ? "bg-green-600/10 text-green-500 border-green-600/30"
-                : connectionState === "connecting"
-                ? "bg-yellow-600/10 text-yellow-500 border-yellow-600/30"
-                : connectionState === "error"
-                ? "bg-red-600/10 text-red-500 border-red-600/30"
-                : "bg-theme-elevated/80 text-theme-secondary border-theme-primary hover:border-accent"
-            }`}
-            onClick={onConnectionTest}
-          >
-            {t(`common.connectionState.${connectionState}`)}
-          </button>
-        </div>
-      </div>
-
-      {/* Hero section */}
-      <div className="text-center mb-12 animate-fade-in-up relative z-10">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-accent/10 border border-accent/20 mb-6">
-          <FontAwesomeIcon icon={faBullseye} className="text-accent text-3xl" />
-        </div>
-        <h1 className="text-5xl md:text-7xl font-black text-theme-primary tracking-tight mb-3">
-          {t('home.title')}
-        </h1>
-        <p className="text-theme-muted text-lg">Dartboard Scoring App</p>
-      </div>
-
-      {/* Game Modes */}
-      <div className="w-full max-w-lg flex flex-col gap-4 relative z-10 stagger-children">
-        <Link
-          href="/01"
-          data-testid="game-card-01"
-          className="group w-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl animate-fade-in-up"
-        >
-          <div className="relative px-8 py-7 bg-gradient-to-r from-blue-700 to-blue-600 flex items-center gap-6">
-            <div className="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-all">
-              <span className="text-2xl font-black text-white">01</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-2xl font-bold text-white">{t('home.modes.01')}</div>
-              <div className="text-sm text-blue-200/80">301 / 501 / 701</div>
-            </div>
-            <div className="text-white/40 group-hover:text-white/70 transition-all text-xl">
-              &rsaquo;
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/cricket"
-          data-testid="game-card-cricket"
-          className="group w-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl animate-fade-in-up"
-        >
-          <div className="relative px-8 py-7 bg-gradient-to-r from-green-700 to-green-600 flex items-center gap-6">
-            <div className="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-all">
-              <FontAwesomeIcon icon={faCircleDot} className="text-2xl text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-2xl font-bold text-white">{t('home.modes.cricket')}</div>
-              <div className="text-sm text-green-200/80">Standard / Cut Throat</div>
-            </div>
-            <div className="text-white/40 group-hover:text-white/70 transition-all text-xl">
-              &rsaquo;
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/training"
-          data-testid="game-card-training"
-          className="group w-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl animate-fade-in-up"
-        >
-          <div className="relative px-8 py-7 bg-gradient-to-r from-orange-700 to-orange-600 flex items-center gap-6">
-            <div className="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-all">
-              <FontAwesomeIcon icon={faBullseye} className="text-2xl text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-2xl font-bold text-white">{t('home.modes.training')}</div>
-              <div className="text-sm text-orange-200/80">Free Throw / Target / Checkout</div>
-            </div>
-            <div className="text-white/40 group-hover:text-white/70 transition-all text-xl">
-              &rsaquo;
-            </div>
-          </div>
-        </Link>
-
-        {/* Watch Game - Join as spectator */}
-        <div className="w-full bg-theme-elevated rounded-2xl p-6 border border-theme-primary transition-all hover:border-purple-500/30 animate-fade-in-up">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-purple-600/10 flex items-center justify-center">
-              <FontAwesomeIcon icon={faEye} className="text-purple-400" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-theme-primary">{t('spectator.watchGame')}</h2>
-              <p className="text-theme-muted text-xs">{t('spectator.enterCodeDescription')}</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={gameCode}
-              onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-              onKeyDown={handleGameCodeKeyDown}
-              placeholder={t('spectator.codePlaceholder')}
-              className="flex-1 px-4 py-3 bg-theme-secondary text-theme-primary font-mono text-lg tracking-widest rounded-xl border border-theme-primary focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 placeholder:text-theme-tertiary placeholder:tracking-normal placeholder:font-sans placeholder:text-sm transition-all"
-              maxLength={12}
-              data-testid="game-code-input"
-            />
+      {/* TopAppBar */}
+      <header className="sticky top-0 z-50 shadow-2xl shadow-black/20" style={{ backgroundColor: 'var(--hud-background)' }}>
+        <div className="flex justify-between items-center w-full px-6 py-4">
+          <h1 className="font-headline font-extrabold text-2xl tracking-tight" style={{ color: 'var(--hud-primary)' }}>
+            GranBoard
+          </h1>
+          <div className="flex gap-4 items-center">
+            {/* Bluetooth status */}
             <button
-              onClick={handleJoinGame}
-              disabled={gameCode.trim().length === 0}
-              className="px-6 py-3 bg-purple-700 text-white rounded-xl font-bold hover:bg-purple-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-              data-testid="join-game-button"
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                connectionState === "connected"
+                  ? "bg-emerald-500/10 text-emerald-400"
+                  : connectionState === "connecting"
+                  ? "bg-amber-500/10 text-amber-400"
+                  : connectionState === "error"
+                  ? "bg-red-500/10 text-red-400"
+                  : "text-slate-400 hover:text-amber-300"
+              }`}
+              onClick={onConnectionTest}
             >
-              {t('spectator.join')}
+              {connectionStateLabel()}
             </button>
+            <button
+              onClick={() => openDialog()}
+              className="text-slate-400 hover:text-amber-300 transition-colors duration-300 active:opacity-70"
+            >
+              <FontAwesomeIcon icon={faGear} className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-5xl mx-auto px-6 pt-12">
+        {/* Editorial Header */}
+        <section className="mb-12 animate-fade-in-up">
+          <h2 className="font-headline font-extrabold text-5xl md:text-6xl tracking-tight mb-4" style={{ color: 'var(--hud-on-surface)' }}>
+            Select your <span style={{ color: 'var(--hud-primary)' }}>session.</span>
+          </h2>
+          <p className="font-body text-lg max-w-md ml-1 opacity-80" style={{ color: 'var(--hud-tertiary)' }}>
+            Choose a classic game or sharpen your skills in the Lab.
+          </p>
+        </section>
+
+        {/* Main Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Primary Game Selection */}
+          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 stagger-children">
+            {/* Game Card: 01 Games */}
+            <Link
+              href="/01"
+              data-testid="game-card-01"
+              className="group relative overflow-hidden rounded-xl p-8 h-80 flex flex-col justify-between transition-all duration-300 shadow-xl animate-fade-in-up"
+              style={{ backgroundColor: 'var(--hud-surface-container-low)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--hud-surface-container)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--hud-surface-container-low)'}
+            >
+              <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                <FontAwesomeIcon icon={faCrosshairs} className="text-[180px]" />
+              </div>
+              <div>
+                <span className="font-label text-xs uppercase tracking-widest font-bold mb-2 block" style={{ color: 'var(--hud-secondary)' }}>
+                  Standard
+                </span>
+                <h3 className="font-headline font-bold text-3xl" style={{ color: 'var(--hud-on-surface)' }}>
+                  01
+                </h3>
+                <p className="font-body mt-2 text-sm leading-relaxed" style={{ color: 'var(--hud-tertiary)', opacity: 0.6 }}>
+                  301 / 501 / 701
+                </p>
+              </div>
+              <span className="hud-gradient-cta w-fit px-8 py-3 rounded-full font-bold transition-all hover:brightness-110 active:scale-95">
+                Start Game
+              </span>
+            </Link>
+
+            {/* Game Card: Cricket */}
+            <Link
+              href="/cricket"
+              data-testid="game-card-cricket"
+              className="group relative overflow-hidden rounded-xl p-8 h-80 flex flex-col justify-between transition-all duration-300 shadow-xl animate-fade-in-up"
+              style={{ backgroundColor: 'var(--hud-surface-container-low)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--hud-surface-container)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--hud-surface-container-low)'}
+            >
+              <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                <FontAwesomeIcon icon={faCircleDot} className="text-[180px]" />
+              </div>
+              <div>
+                <span className="font-label text-xs uppercase tracking-widest font-bold mb-2 block" style={{ color: 'var(--hud-secondary)' }}>
+                  Competitive
+                </span>
+                <h3 className="font-headline font-bold text-3xl" style={{ color: 'var(--hud-on-surface)' }}>
+                  Cricket
+                </h3>
+                <p className="font-body mt-2 text-sm leading-relaxed" style={{ color: 'var(--hud-tertiary)', opacity: 0.6 }}>
+                  Standard / Cut Throat
+                </p>
+              </div>
+              <span className="w-fit px-8 py-3 rounded-full font-bold transition-all hover:bg-white/5 active:scale-95 border" style={{ borderColor: 'rgba(69, 70, 77, 0.2)', color: 'var(--hud-on-surface)' }}>
+                Start Game
+              </span>
+            </Link>
+
+            {/* Wide Card: Training Lab */}
+            <Link
+              href="/training"
+              data-testid="game-card-training"
+              className="sm:col-span-2 group relative overflow-hidden rounded-xl p-10 flex flex-col md:flex-row md:items-center justify-between transition-all duration-300 hover:brightness-110 shadow-2xl border border-white/5 animate-fade-in-up"
+              style={{ backgroundColor: 'var(--hud-surface-container-highest)' }}
+            >
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <FontAwesomeIcon icon={faBullseye} style={{ color: 'var(--hud-primary)' }} />
+                  <span className="font-label text-xs uppercase tracking-widest font-bold" style={{ color: 'var(--hud-primary)' }}>
+                    Refinement
+                  </span>
+                </div>
+                <h3 className="font-headline font-bold text-4xl mb-2" style={{ color: 'var(--hud-on-surface)' }}>
+                  Training Lab
+                </h3>
+                <p className="font-body max-w-sm" style={{ color: 'var(--hud-tertiary)', opacity: 0.6 }}>
+                  Free Throw / Target / Checkout
+                </p>
+              </div>
+              <div className="mt-8 md:mt-0">
+                <span className="hud-gradient-cta px-10 py-4 rounded-full font-extrabold shadow-lg transition-all active:scale-95 inline-block" style={{ boxShadow: '0 4px 15px rgba(255, 185, 95, 0.1)' }}>
+                  Enter Lab
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Right Column: Sidebar Widgets */}
+          <div className="md:col-span-4 flex flex-col gap-6">
+            {/* Watch Game Widget */}
+            <div
+              className="rounded-xl p-8 border border-white/5 shadow-xl animate-fade-in-up"
+              style={{ backgroundColor: 'var(--hud-surface-container-low)' }}
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <p className="font-label text-xs uppercase tracking-widest font-bold mb-1" style={{ color: 'var(--hud-tertiary)', opacity: 0.6 }}>
+                    Live
+                  </p>
+                  <h4 className="font-headline font-bold text-xl" style={{ color: 'var(--hud-on-surface)' }}>
+                    Watch Game
+                  </h4>
+                </div>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(128, 90, 213, 0.1)' }}>
+                  <FontAwesomeIcon icon={faEye} className="text-purple-400" />
+                </div>
+              </div>
+              <p className="text-sm mb-6 font-body" style={{ color: 'var(--hud-tertiary)', opacity: 0.8 }}>
+                Enter a game code to watch a live game.
+              </p>
+              <div className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  value={gameCode}
+                  onChange={(e) => setGameCode(e.target.value.toUpperCase())}
+                  onKeyDown={handleGameCodeKeyDown}
+                  placeholder="Enter game code"
+                  className="w-full px-4 py-3 rounded-lg font-mono text-lg tracking-widest border focus:outline-none focus:ring-1 transition-all placeholder:tracking-normal placeholder:font-sans placeholder:text-sm"
+                  style={{
+                    backgroundColor: 'var(--hud-surface-container)',
+                    borderColor: 'rgba(69, 70, 77, 0.15)',
+                    color: 'var(--hud-on-surface)',
+                  }}
+                  maxLength={12}
+                  data-testid="game-code-input"
+                />
+                <button
+                  onClick={handleJoinGame}
+                  disabled={gameCode.trim().length === 0}
+                  className="w-full py-3 rounded-lg font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.98]"
+                  style={{
+                    backgroundColor: 'rgba(128, 90, 213, 0.2)',
+                    color: '#a78bfa',
+                  }}
+                  data-testid="join-game-button"
+                >
+                  Join
+                </button>
+              </div>
+            </div>
+
+            {/* Bluetooth Connection Widget */}
+            <div
+              className="rounded-xl p-6 border border-white/5 animate-fade-in-up"
+              style={{ backgroundColor: 'var(--hud-surface-container-lowest)' }}
+            >
+              <h4 className="font-headline font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--hud-on-surface)' }}>
+                <span style={{ color: 'var(--hud-secondary)' }}>&#8226;</span>
+                Bluetooth
+              </h4>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                  <span className="text-sm" style={{ color: 'var(--hud-tertiary)', opacity: 0.6 }}>Status</span>
+                  <span className={`font-headline font-bold text-sm ${
+                    connectionState === "connected" ? "text-emerald-400"
+                    : connectionState === "error" ? "text-red-400"
+                    : "text-slate-400"
+                  }`}>
+                    {connectionStateLabel()}
+                  </span>
+                </div>
+                <button
+                  onClick={onConnectionTest}
+                  className="w-full py-2.5 rounded-lg text-sm font-bold transition-all active:scale-[0.98]"
+                  style={{
+                    backgroundColor: 'rgba(68, 226, 205, 0.1)',
+                    color: 'var(--hud-secondary)',
+                  }}
+                >
+                  {connectionState === "connected" ? "Reconnect" : "Connect"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
