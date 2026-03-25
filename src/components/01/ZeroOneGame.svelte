@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { SEGMENT_SECTIONS, SEGMENT_TYPES } from '@/constants/segments';
   import { ANIMATION_TIMINGS } from '@/constants/animations';
   import {
@@ -35,12 +35,20 @@
   import AnimationOverlay from '@/components/shared/AnimationOverlay.svelte';
   import SettingsGameActions from './SettingsGameActions.svelte';
   import GlobalSettingsDialog from '@/components/shared/GlobalSettingsDialog.svelte';
+  import BluetoothDebug from '@/components/debug/BluetoothDebug.svelte';
+  import type { DebugEvent } from '@/components/debug/BluetoothDebug.svelte';
+  import type { RawBleEvent } from '@/services/granboard';
 
   // ─── Animation states ──────────────────────────────────────────
   let showTurnSummary = $state(false);
   let turnSummaryData = $state<{ player: any; hits: any[] } | null>(null);
   let showLegend = $state(false);
   let showShare = $state(false);
+
+  // ─── BLE debug events ─────────────────────────────────────────
+  let debugEvents = $state<DebugEvent[]>([]);
+  let rawBleEvents = $state<RawBleEvent[]>([]);
+  let rawEventCount = $state(0);
 
   // ─── Sound effects ─────────────────────────────────────────────
   let audioContext: AudioContext | null = null;
@@ -158,7 +166,11 @@
     if (previousGameState) {
       const stateToSave = cloneGameState(previousGameState);
       const hitsToSave = [...previousTurnHits];
-      gameHistory = [...gameHistory, { gameState: stateToSave, turnHits: hitsToSave }].slice(-20);
+      // Use untrack when reading gameHistory to avoid an infinite loop:
+      // this effect should only re-run when gameState changes, not when
+      // it writes back to gameHistory.
+      const prev = untrack(() => gameHistory);
+      gameHistory = [...prev, { gameState: stateToSave, turnHits: hitsToSave }].slice(-20);
     }
 
     previousGameState = cloneGameState(gs);
@@ -191,6 +203,9 @@
 
   // Wrapper for segment hit with sound effects
   function handleSegmentHitWithSound(segment: Segment) {
+    // Record raw BLE event before debounce filtering
+    debugEvents = [...debugEvents, { type: 'HIT', segment: segment.ShortName, ts: Date.now() }].slice(-100);
+
     // Store previous state to check for bust
     const gs = gameStore.gameState;
     const currentPlayerIndex = gs?.currentPlayerIndex ?? 0;
@@ -235,6 +250,10 @@
 
   function setupBoard(board: Granboard) {
     board.segmentHitCallback = stableSegmentCallback;
+    board.onRawBleEvent = (event) => {
+      rawBleEvents = [...rawBleEvents, event].slice(-100);
+      rawEventCount = board.rawEventCount;
+    };
     board.onDisconnect = () => {
       console.log('[granboard] Board disconnected');
       connectionState = 'disconnected';
@@ -444,7 +463,7 @@
     </div>
 
     <!-- Animations -->
-    <HitAnimation hit={gameStore.lastHit} />
+    <HitAnimation hit={gameStore.lastHit} hitIndex={gameStore.hitIndex} />
 
     {#if showTurnSummary && turnSummaryData}
       <TurnSummary
@@ -477,5 +496,16 @@
     />
 
     <GlobalSettingsDialog />
+
+    <!-- BLE debug panel (portalled via svelte:body, always above everything) -->
+    <BluetoothDebug
+      {connectionState}
+      lastHit={gameStore.lastHit}
+      hitIndex={gameStore.hitIndex}
+      dartCount={gameStore.gameState?.dartsThrown ?? 0}
+      events={debugEvents}
+      {rawEventCount}
+      {rawBleEvents}
+    />
   </main>
 {/if}

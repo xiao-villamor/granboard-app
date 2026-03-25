@@ -6,10 +6,10 @@ export const ANIMATION_TIMINGS = {
   HIT_ANIMATION_DELAY: 400,
 
   /** Duration for hit-sequence animation */
-  HIT_SEQUENCE_DURATION: 1800,
+  HIT_SEQUENCE_DURATION: 1200,
 
   /** Default animation duration */
-  DEFAULT_DURATION: 1500,
+  DEFAULT_DURATION: 1000,
 
   /** Delay between whistle sounds */
   WHISTLE_DELAY: 300,

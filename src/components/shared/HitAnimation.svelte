@@ -3,32 +3,68 @@
 
   interface Props {
     hit: Segment | null;
+    hitIndex?: number;
     onComplete?: () => void;
   }
 
-  let { hit, onComplete }: Props = $props();
+  let { hit, hitIndex = 0, onComplete }: Props = $props();
 
   let show = $state(false);
+  let fadeOut = $state(false);
+  let displayedHit = $state<Segment | null>(null);
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let fadeTimer: ReturnType<typeof setTimeout> | null = null;
 
   $effect(() => {
+    // Depend on hitIndex so the effect re-fires even when the same segment is hit twice.
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    hitIndex;
+
     if (hit) {
-      show = true;
+      // Clear any pending timers
       if (timer) clearTimeout(timer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+
+      // Show immediately with fresh state
+      displayedHit = hit;
+      fadeOut = false;
+      show = true;
+
+      // Start fade-out after 600ms
+      fadeTimer = setTimeout(() => {
+        fadeOut = true;
+      }, 600);
+
+      // Fully hide after 1000ms (600ms visible + 400ms fade-out)
       timer = setTimeout(() => {
         show = false;
+        fadeOut = false;
+        displayedHit = null;
         onComplete?.();
-      }, 700);
+      }, 1000);
+    } else {
+      // hit became null (e.g. player changed) — clear immediately so the
+      // animation doesn't stay stuck on screen when the cleanup cancels
+      // the pending hide timer.
+      if (timer) clearTimeout(timer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+      show = false;
+      fadeOut = false;
+      displayedHit = null;
     }
 
     return () => {
       if (timer) clearTimeout(timer);
+      if (fadeTimer) clearTimeout(fadeTimer);
     };
   });
 </script>
 
-{#if hit && show}
-  <div class="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+{#if displayedHit && show}
+  <div
+    class="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none transition-opacity duration-400"
+    class:opacity-0={fadeOut}
+  >
     <!-- Overlay with fade -->
     <div class="absolute inset-0 bg-black/50 animate-fade-in"></div>
 
@@ -43,7 +79,7 @@
             class="text-9xl font-headline font-extrabold"
             style="color: var(--hud-primary);"
           >
-            {hit.ShortName}
+            {displayedHit.ShortName}
           </div>
         </div>
       </div>

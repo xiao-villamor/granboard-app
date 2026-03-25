@@ -185,7 +185,12 @@ export const processDartHit = (
     return gameState;
   }
 
-  const newState = { ...gameState };
+  // Deep clone so we never mutate the state Svelte already holds references to.
+  // A shallow spread ({ ...gameState }) shares the players array/objects,
+  // so mutations like `currentPlayer.currentScore -= dartValue` silently
+  // modify the *original* state — Svelte 5's proxy-based reactivity then
+  // cannot detect the change, which is why only the first dart appeared to register.
+  const newState = cloneGameState(gameState);
   const currentPlayer = newState.players[newState.currentPlayerIndex];
 
   const dartValue = calculateDartValue(segment);

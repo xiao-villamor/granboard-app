@@ -90,13 +90,14 @@ export const processDartHit = (
     return gameState;
   }
 
-  // Prevent double processing (React Strict Mode issue)
+  // Prevent double processing
   if (hitId && gameState.lastProcessedHit === hitId) {
     console.log("⚠️ Hit already processed:", hitId);
     return gameState;
   }
 
-  const newState = { ...gameState };
+  // Deep clone so we never mutate the state Svelte already holds references to
+  const newState = cloneGameState(gameState);
   const currentPlayer = newState.players[newState.currentPlayerIndex];
 
   // Check if the segment is a cricket number
@@ -130,16 +131,6 @@ export const processDartHit = (
   // Track total marks for MPR calculation (only count marks that actually count, max 3 per number)
   const actualMarksAdded = newMarks - currentScore.marks;
   currentPlayer.totalMarks += actualMarksAdded;
-
-  console.log("📊 Score calculation:", {
-    number: cricketNumber,
-    segmentType: segment.Type,
-    marksToAdd,
-    previousMarks: currentScore.marks,
-    newMarks,
-    overflowMarks,
-    actualMarksAdded
-  });
 
   // Calculate overflow marks for scoring
   let scoringMarks = 0;
@@ -188,13 +179,6 @@ export const processDartHit = (
   currentPlayer.scores.set(cricketNumber, {
     marks: newMarks,
     points: updatedScore.points,
-  });
-
-  console.log("✅ Final update:", {
-    player: currentPlayer.player.name,
-    number: cricketNumber,
-    finalMarks: newMarks,
-    finalPoints: updatedScore.points
   });
 
   // Check for win condition

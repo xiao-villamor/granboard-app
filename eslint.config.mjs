@@ -1,10 +1,25 @@
-import nextPlugin from "eslint-config-next";
+import js from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
-const eslintConfig = [
+export default [
   {
-    ignores: [".next/*", "node_modules/*", "out/*", "public/*", "coverage/*"],
+    ignores: ["node_modules/**", "dist/**", ".astro/**", "public/**", "coverage/**"],
   },
-  ...nextPlugin,
+  js.configs.recommended,
+  {
+    files: ["**/*.ts", "**/*.svelte"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        extraFileExtensions: [".svelte"],
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+    },
+  },
 ];
-
-export default eslintConfig;

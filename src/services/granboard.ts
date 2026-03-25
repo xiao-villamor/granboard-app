@@ -88,6 +88,15 @@ const SEGMENT_MAPPING = {
   "66-84-78-64": SegmentID.RESET_BUTTON,
 };
 
+/** Raw BLE event info for diagnostics */
+export interface RawBleEvent {
+  ts: number;
+  bytes: number[];
+  segmentUID: string;
+  type: 'separator' | 'hit' | 'unknown';
+  segmentName?: string;
+}
+
 export class Granboard {
   private readonly bluetoothConnection: BluetoothRemoteGATTCharacteristic;
   private readonly writeCharacteristic?: BluetoothRemoteGATTCharacteristic;
@@ -95,8 +104,17 @@ export class Granboard {
   private readonly device?: BluetoothDevice;
   private _disconnected = false;
 
+  /** Total count of characteristicvaluechanged events received (including separators) */
+  private _rawEventCount = 0;
+
   public segmentHitCallback?: (segment: Segment) => void;
   public onDisconnect?: () => void;
+  /** Called for EVERY characteristicvaluechanged event for diagnostics */
+  public onRawBleEvent?: (event: RawBleEvent) => void;
+
+  public get rawEventCount(): number {
+    return this._rawEventCount;
+  }
 
   /** Whether the underlying BLE connection has been lost */
   public get disconnected(): boolean {
@@ -257,28 +275,64 @@ export class Granboard {
   }
 
   private onSegmentHit() {
+    this._rawEventCount++;
+
     if (!this.bluetoothConnection.value) {
+      console.log(`[Granboard] Event #${this._rawEventCount}: no value`);
+      this.onRawBleEvent?.({ ts: Date.now(), bytes: [], segmentUID: '', type: 'unknown' });
       return; // There is no new value
     }
 
     // Ignore events in the first 500ms after connection to avoid false triggers
     const timeSinceConnection = Date.now() - this.connectionTime;
     if (timeSinceConnection < 500) {
-      console.log(`[Granboard] Ignoring event (${timeSinceConnection}ms after connection) - warming up`);
+      console.log(`[Granboard] Event #${this._rawEventCount}: ignoring (${timeSinceConnection}ms after connection) - warming up`);
       return;
     }
 
-    const rawBytes = new Uint8Array(this.bluetoothConnection.value.buffer);
-    const segmentUID = rawBytes.join("-");
+    // Snapshot the current value immediately.
+    // NOTE: Do NOT call readValue() here. The notify characteristic (442f1571)
+    // is NOTIFY-only with no read permission on the ESP32 GATT server. Calling
+    // readValue() sends a GATT Read Request that the firmware rejects with
+    // ATT_ERROR_READ_NOT_PERMITTED. While that error round-trip is in flight,
+    // subsequent BLE notifications can be queued/dropped by Chrome's Bluetooth
+    // stack. The firmware's sequence counter solves Chrome's dedup — readValue
+    // is unnecessary and harmful.
+    const rawBytes = new Uint8Array(this.bluetoothConnection.value.buffer.slice(0));
+
+    // The firmware appends a monotonic sequence counter byte after the 0x40
+    // ('@') terminator to guarantee every notification is byte-unique (Chrome
+    // deduplicates consecutive identical GATT payloads).  Strip any bytes
+    // after the first 0x40 (inclusive of 0x40) to recover the original
+    // GranBoard segment code for lookup.
+    //
+    // Also still handle legacy {0x00} separator packets from older firmware.
+    if (rawBytes.length === 1 && rawBytes[0] === 0x00) {
+      console.log(`[Granboard] Event #${this._rawEventCount}: 0x00 separator — discarding`);
+      this.onRawBleEvent?.({ ts: Date.now(), bytes: [0], segmentUID: '0', type: 'separator' });
+      return;
+    }
+
+    // Find the 0x40 ('@') terminator and keep bytes up to and including it.
+    // This strips the trailing sequence counter byte added by the firmware.
+    const terminatorIdx = rawBytes.indexOf(0x40);
+    const segmentBytes = terminatorIdx >= 0
+      ? rawBytes.slice(0, terminatorIdx + 1)
+      : rawBytes;
+
+    const segmentUID = Array.from(segmentBytes).join("-");
     const segmentID = (SEGMENT_MAPPING as any)[segmentUID];
 
-    console.log(`[Granboard] Hit: bytes=[${rawBytes}] key="${segmentUID}" -> ${segmentID !== undefined ? segmentID : "UNKNOWN"}`);
+    console.log(`[Granboard] Event #${this._rawEventCount}: raw=[${rawBytes}] seg=[${segmentBytes}] key="${segmentUID}" -> ${segmentID !== undefined ? segmentID : "UNKNOWN"}`);
 
     if (segmentID !== undefined) {
-      this.segmentHitCallback?.(CreateSegment(segmentID));
+      const segment = CreateSegment(segmentID);
+      this.onRawBleEvent?.({ ts: Date.now(), bytes: Array.from(rawBytes), segmentUID, type: 'hit', segmentName: segment.ShortName });
+      this.segmentHitCallback?.(segment);
     } else {
       // Treat unknown segments as MISS (out of bounds)
       console.log(`[Granboard] Unknown segment UID: ${segmentUID} - treating as MISS`);
+      this.onRawBleEvent?.({ ts: Date.now(), bytes: Array.from(rawBytes), segmentUID, type: 'unknown' });
       this.segmentHitCallback?.(CreateSegment(SegmentID.MISS));
     }
   }

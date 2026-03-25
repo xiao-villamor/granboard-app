@@ -12,10 +12,12 @@ export function createZeroOneGameState(
 ) {
   let gameState = $state<ZeroOneGameState | null>(initialGameState);
   let lastHit = $state<Segment | null>(null);
+  let hitIndex = $state(0);
   let currentTurnHits = $state<Segment[]>([]);
 
   let lastPlayerChangeTime = 0;
   let lastDartHitTime = 0;
+  let lastDartHitSegmentID = -1;
 
   function handleResetButton() {
     // Debounce: prevent multiple rapid presses (within 500ms)
@@ -46,15 +48,19 @@ export function createZeroOneGameState(
     // Clear current turn hits and update game state
     currentTurnHits = [];
     gameState = newState;
+    lastDartHitSegmentID = -1;
   }
 
   function handleDartHit(segment: Segment) {
-    // Debounce to prevent double detection
+    // Segment-aware debounce: only block the same segment firing again within 300ms
+    // (physical double-read). A different segment always passes through immediately.
     const now = Date.now();
-    if (now - lastDartHitTime < 1000) {
+    if (segment.ID === lastDartHitSegmentID && now - lastDartHitTime < 300) {
+      console.log('🔇 Debounced (same segment):', segment.ShortName);
       return;
     }
     lastDartHitTime = now;
+    lastDartHitSegmentID = segment.ID;
 
     const hitId = `${now}-${segment.ID}`;
 
@@ -76,6 +82,7 @@ export function createZeroOneGameState(
 
     // Update UI
     lastHit = segment;
+    hitIndex += 1;
 
     // Save current hits before adding new one
     onTurnHitsUpdate([...currentTurnHits]);
@@ -106,6 +113,7 @@ export function createZeroOneGameState(
   return {
     get gameState() { return gameState; },
     get lastHit() { return lastHit; },
+    get hitIndex() { return hitIndex; },
     get currentTurnHits() { return currentTurnHits; },
     setGameState,
     onSegmentHit,

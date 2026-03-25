@@ -1,10 +1,19 @@
 <script lang="ts">
   import { animations } from '@/stores/animations.svelte';
   import HitSequenceAnimation from './HitSequenceAnimation.svelte';
+
+  function dismiss() {
+    animations.clear();
+  }
 </script>
 
 {#if animations.currentAnimation}
-  <div class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm cursor-pointer"
+    onclick={dismiss}
+  >
     <div class={animations.currentAnimation.type === 'hit-sequence' ? '' : 'animate-bounce-in'}>
       {#if animations.currentAnimation.type === 'hit-sequence' && animations.currentAnimation.data}
         {#key animations.animationKey}

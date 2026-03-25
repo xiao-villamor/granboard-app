@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { SEGMENT_SECTIONS, SEGMENT_TYPES, CRICKET_NUMBERS } from '@/constants/segments';
   import { ANIMATION_TIMINGS } from '@/constants/animations';
   import {
@@ -38,12 +38,20 @@
   import AnimationOverlay from '@/components/shared/AnimationOverlay.svelte';
   import SettingsGameActions from '@/components/01/SettingsGameActions.svelte';
   import GlobalSettingsDialog from '@/components/shared/GlobalSettingsDialog.svelte';
+  import BluetoothDebug from '@/components/debug/BluetoothDebug.svelte';
+  import type { DebugEvent } from '@/components/debug/BluetoothDebug.svelte';
+  import type { RawBleEvent } from '@/services/granboard';
 
   // ─── Animation states ──────────────────────────────────────────
   let showTurnSummary = $state(false);
   let turnSummaryData = $state<{ player: any; hits: any[] } | null>(null);
   let showLegend = $state(false);
   let showShare = $state(false);
+
+  // ─── BLE debug events ─────────────────────────────────────────
+  let debugEvents = $state<DebugEvent[]>([]);
+  let rawBleEvents = $state<RawBleEvent[]>([]);
+  let rawEventCount = $state(0);
 
   // ─── Sound effects ─────────────────────────────────────────────
   let audioContext: AudioContext | null = null;
@@ -151,11 +159,10 @@
         saveCurrentTurnHitsRef(hits);
       }
     },
-    onTurnComplete: (playerState: any, hits, isGameFinished) => {
-      // Add turn to player history
-      if (gameStore.gameState) {
-        addTurn(playerState.player, gameStore.gameState.currentRound, hits);
-      }
+    onTurnComplete: (playerState: any, hits, isGameFinished, round) => {
+      // Add turn to player history using the round passed from the store
+      // (reading gameStore.gameState.currentRound here would give the already-advanced round)
+      addTurn(playerState.player, round, hits);
 
       // Play sound when game is finished
       if (isGameFinished) {
@@ -200,7 +207,11 @@
     if (previousGameState) {
       const stateToSave = cloneGameState(previousGameState);
       const hitsToSave = [...previousTurnHits];
-      gameHistory = [...gameHistory, { gameState: stateToSave, turnHits: hitsToSave }].slice(-20);
+      // Use untrack when reading gameHistory to avoid an infinite loop:
+      // this effect should only re-run when gameState changes, not when
+      // it writes back to gameHistory.
+      const prev = untrack(() => gameHistory);
+      gameHistory = [...prev, { gameState: stateToSave, turnHits: hitsToSave }].slice(-20);
     }
 
     previousGameState = cloneGameState(gs);
@@ -241,6 +252,9 @@
 
   // Wrapper for segment hit with sound effects
   function handleSegmentHitWithSound(segment: Segment) {
+    // Record raw BLE event before debounce filtering
+    debugEvents = [...debugEvents, { type: 'HIT', segment: segment.ShortName, ts: Date.now() }].slice(-100);
+
     // Snapshot only the marks for the hit number to check closure (avoids full cloneGameState)
     const gs = gameStore.gameState;
     const hitNumber = segment.Section;
@@ -285,6 +299,10 @@
 
   function setupBoard(board: Granboard) {
     board.segmentHitCallback = stableSegmentCallback;
+    board.onRawBleEvent = (event) => {
+      rawBleEvents = [...rawBleEvents, event].slice(-100);
+      rawEventCount = board.rawEventCount;
+    };
     board.onDisconnect = () => {
       console.log('[granboard] Board disconnected');
       connectionState = 'disconnected';
@@ -377,13 +395,9 @@
     }
   });
 
-  // Close turn summary when next player throws a dart
-  $effect(() => {
-    if (gameStore.lastHit && showTurnSummary) {
-      showTurnSummary = false;
-      turnSummaryData = null;
-    }
-  });
+  // Close turn summary when next player throws a dart.
+  // Use $derived so visibility is a pure function of state — no $state writes inside $effect.
+  let isTurnSummaryVisible = $derived(showTurnSummary && !gameStore.lastHit);
 
   // ─── Actions ──────────────────────────────────────────────────
   function handleUndo() {
@@ -518,11 +532,11 @@
     </div>
 
     <!-- Animations -->
-    <HitAnimation hit={gameStore.lastHit} />
+    <HitAnimation hit={gameStore.lastHit} hitIndex={gameStore.hitIndex} />
 
-    {#if showTurnSummary && turnSummaryData}
+    {#if isTurnSummaryVisible && turnSummaryData}
       <TurnSummary
-        show={showTurnSummary}
+        show={isTurnSummaryVisible}
         currentPlayer={turnSummaryData.player}
         hits={turnSummaryData.hits}
         onComplete={() => {
@@ -551,5 +565,16 @@
     />
 
     <GlobalSettingsDialog />
+
+    <!-- BLE debug panel (portalled via svelte:body, always above everything) -->
+    <BluetoothDebug
+      {connectionState}
+      lastHit={gameStore.lastHit}
+      hitIndex={gameStore.hitIndex}
+      dartCount={gameStore.gameState?.dartsThrown ?? 0}
+      events={debugEvents}
+      {rawEventCount}
+      {rawBleEvents}
+    />
   </main>
 {/if}
